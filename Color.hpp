@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <valarray>
 
 /**
  * @brief Convert a number to a hexadecimal string
@@ -34,6 +35,23 @@ inline int toNum(const std::string &hex) {
 }
 
 /**
+ * @brief Set a number within a range
+ * @param num The number to set
+ * @param min The minimum value
+ * @param max The maximum value
+ * @return The number within the range
+ */
+int setInLimits(int num, int min, int max) {
+  if (num < min) {
+    return min;
+  }
+  if (num > max) {
+    return max;
+  }
+  return num;
+}
+
+/**
  * @brief A class to represent a color
  * A class to represent a color with red, green, and blue values and a hexadecimal string.
  */
@@ -49,6 +67,28 @@ class Color {
   void setRed(int red);
   void setGreen(int green);
   void setBlue(int blue);
+  void addColor(const Color &color);
+  void addColor(const std::string &color);
+  void subtractColor(const Color &color);
+  void subtractColor(const std::string &color);
+  int getDistance(const Color &color) const;
+  int getDistance(const std::string &color) const;
+
+  int operator==(const Color &color) const {
+    return red == color.red && green == color.green && blue == color.blue;
+  }
+  int operator!=(const Color &color) const {
+    return red != color.red || green != color.green || blue != color.blue;
+  }
+  std::string operator<<(const Color &color) const {
+    return color.getHex();
+  }
+  void operator+=(const Color &color) {
+    addColor(color);
+  }
+  void operator-=(const Color &color) {
+    subtractColor(color);
+  }
 
   private:
   int red;
@@ -127,7 +167,7 @@ inline std::string Color::getHex() const {
  * @param red The red value
  */
 inline void Color::setRed(const int red) {
-  this->red = red;
+  this->red = setInLimits(red, 0, 255);
   hex = "#" + toHex(red) + toHex(green) + toHex(blue);
 }
 /**
@@ -135,7 +175,7 @@ inline void Color::setRed(const int red) {
  * @param green The green value
  */
 inline void Color::setGreen(const int green) {
-  this->green = green;
+  this->green = setInLimits(green, 0, 255);
   hex = "#" + toHex(red) + toHex(green) + toHex(blue);
 }
 /**
@@ -143,7 +183,60 @@ inline void Color::setGreen(const int green) {
  * @param blue The blue value
  */
 inline void Color::setBlue(const int blue) {
-  this->blue = blue;
+  this->blue = setInLimits(blue, 0, 255);
   hex = "#" + toHex(red) + toHex(green) + toHex(blue);
 }
+
+/**
+ * @brief Add a color to the current color
+ * Adds the given color to the current color.
+ * @param color The color to add
+ */
+inline void Color::addColor(const Color &color) {
+  setRed(red + color.red);
+  setGreen(green + color.green);
+  setBlue(blue + color.blue);
+}
+
+/**
+ * @brief Add a color to the current color
+ * Adds the given color to the current color.
+ * @param color The color to add
+ */
+inline void Color::addColor(const std::string &color) {
+  const Color c(color);
+  addColor(c);
+}
+
+/**
+ * @brief Subtract a color from the current color
+ * Subtracts the given color from the current color.
+ * @param color The color to subtract
+ */
+inline void Color::subtractColor(const Color &color) {
+  setRed(red - color.red);
+  setGreen(green - color.green);
+  setBlue(blue - color.blue);
+}
+
+/**
+ * @brief Subtract a color from the current color
+ * Subtracts the given color from the current color.
+ * @param color The color to subtract
+ */
+inline void Color::subtractColor(const std::string &color) {
+  const Color c(color);
+  subtractColor(c);
+}
+
+/**
+ * @brief Get the distance to another color
+ * Calculates the distance to another color.
+ * @param color The other color
+ * @return The distance
+ */
+inline int Color::getDistance(const Color &color) const {
+  return std::sqrt(std::pow(red - color.red, 2) + std::pow(green - color.green, 2) + std::pow(blue - color.blue, 2));
+}
+
 
