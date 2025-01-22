@@ -1,0 +1,62 @@
+#include <String>
+#include <vector>
+
+class Color {
+  public:
+    Color();
+    Color(const int red, const int green, const int blue, const std::string name);
+    int getRed() const;
+    int getGreen() const;
+    int getBlue() const;
+    std::string getName() const;
+    void setRed(const int red);
+    void setGreen(const int green);
+    void setBlue(const int blue);
+    void setName(const std::string name);
+
+  private:
+    int red;
+    int green;
+    int blue;
+    std::string name;
+};
+
+class ColorMap {
+  public:
+    ColorMap();
+    std::vector<std::string> getColors() const;
+    std::string getColor(const int index) const;
+    void addColor(const std::string color);
+    void removeColor(const int index);
+    void clear();
+    std::string getClosestColor(const std::string &color) const;
+  private:
+    std::vector<std::string> colors;
+};
+
+inline ColorMap::ColorMap() {
+  colors = {};
+}
+inline std::vector<std::string> ColorMap::getColors() const {
+  return colors;
+}
+inline  std::string ColorMap::getColor(const int index) const {
+  return colors.at(index);
+}
+inline void ColorMap::addColor(const std::string color) {
+  colors.emplace_back(color);
+}
+inline void ColorMap::removeColor(const int index) {
+  colors.erase(colors.begin() + index);
+}
+inline void ColorMap::clear() {
+  colors.clear();
+}
+inline std::string ColorMap::getClosestColor(const std::string &color) const {
+  return "";
+}
+
+
+
+
+
