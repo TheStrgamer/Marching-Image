@@ -59,6 +59,31 @@ inline Color::Color(const std::string hex) {
   green = toNum(hex.substr(3, 2));
   blue = toNum(hex.substr(5, 2));
 }
+inline int Color::getRed() const {
+  return red;
+}
+inline int Color::getGreen() const {
+  return green;
+}
+inline int Color::getBlue() const {
+  return blue;
+}
+inline std::string Color::getHex() const {
+  return hex;
+}
+inline void Color::setRed(const int red) {
+  this->red = red;
+  hex = "#" + toHex(red) + toHex(green) + toHex(blue);
+}
+inline void Color::setGreen(const int green) {
+  this->green = green;
+  hex = "#" + toHex(red) + toHex(green) + toHex(blue);
+}
+inline void Color::setBlue(const int blue) {
+  this->blue = blue;
+  hex = "#" + toHex(red) + toHex(green) + toHex(blue);
+}
+
 
 
 class ColorMap {
