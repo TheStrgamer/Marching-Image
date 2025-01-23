@@ -138,7 +138,24 @@ inline void ColorMap::clear() {
  * @return The closest color
  */
 inline Color ColorMap::getClosestColor(const Color& color) const {
-  return {};
+  int minDistance = 1000000;
+  Color col = colors.at(0);
+  for (const auto &c : colors) {
+    if (c.getHex() == color.getHex()) {
+      return c;
+    }
+    int distance = c.getDistance(color);
+    if (distance < minDistance) {
+      minDistance = distance;
+      col = c;
+    }
+    if (distance == minDistance) {
+      if (c.getHex() < col.getHex()) {
+        col = c;
+      }
+    }
+  }
+  return col;
 }
 
 /**
@@ -150,6 +167,7 @@ inline Color ColorMap::getClosestColor(const std::string &color) const {
   Color c(color);
   return getClosestColor(c);
 }
+
 
 
 
