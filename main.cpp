@@ -3,6 +3,7 @@
 #include <vector>
 #include "ColorMap.hpp"
 #include "Color.hpp"
+#include "ImageHandler.hpp"
 
 using namespace std;
 int main() {
@@ -22,6 +23,10 @@ int main() {
   for (const auto &color : colors2) {
     cout << color.getHex() << " is closest to " << colorMap1.getClosestColor(color).getHex() << endl;
   }
+
+  displayInvertedImage("test/images/img1.jpg");
+  displayInvertedImage("test/images/img2.jpg");
+
 
   return 0;
 

@@ -6,4 +6,5 @@ set(CMAKE_CXX_STANDARD 14)
 add_executable(Colormap
     main.cpp
         ColorMap.hpp
-        Color.hpp)
+        Color.hpp
+        ImageHandler.hpp)
