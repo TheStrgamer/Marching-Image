@@ -27,6 +27,11 @@ int main() {
   string inputFolder = "test_images/";
   string outputFolder = "/app/output/";
 
+  ImageHandler imageHandler = ImageHandler(inputFolder + "img1.jpg");
+  imageHandler.mapImage(colorMap1);
+  imageHandler.saveImage(outputFolder + "img1.jpg");
+
+
   return 0;
 
 }
