@@ -1,4 +1,4 @@
-#include <String>
+#include <string>
 #include <vector>
 #include "Color.hpp"
 

@@ -34,3 +34,8 @@
 cmake-build-debug/*
 build/*
 .idea/*
+.vscode/*
+.vs/*
+.env
+/test_images/*
+output/*

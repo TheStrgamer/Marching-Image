@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  colormap:
+    build: .
+    volumes:
+      - ./output:/app/output
+    stdin_open: true
+    tty: true

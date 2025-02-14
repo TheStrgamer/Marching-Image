@@ -1,21 +1,24 @@
-#pragma once
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <string>
+#include <vector>
+
 
 using namespace cv;
-inline void displayInvertedImage(const std::string &path) {
-    Mat image = imread(path);
-    if (image.empty()) {
-        std::cerr << "Could not read the image: " << path << std::endl;
-        return;
-    }
-    for (int y = 0; y < image.rows; y++) {
-        for (int x = 0; x < image.cols; x++) {
-            image.at<Vec3b>(y, x)[0] = 255 - image.at<Vec3b>(y, x)[0];
-        }
-    }
-    imshow("Original Image", image);
-    waitKey(0);
 
-}
+class ImageHandler {
+  public:
+    ImageHandler();
+    ImageHandler(const std::string &path);
+    ImageHandler(const std::string &path, const ColorMap &colorMap);
+    void readImage(const std::string &path);
+    void saveImage(const std::string &path);
+    void mapImage(const ColorMap &colorMap);
+
+  private:
+    Mat image;
+    std::vector<Mat> channels;
+    ColorMap colorMap;
+
+};
+

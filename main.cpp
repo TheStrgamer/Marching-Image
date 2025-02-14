@@ -24,9 +24,8 @@ int main() {
     cout << color.getHex() << " is closest to " << colorMap1.getClosestColor(color).getHex() << endl;
   }
 
-  displayInvertedImage("test/images/img1.jpg");
-  displayInvertedImage("test/images/img2.jpg");
-
+  string inputFolder = "test_images/";
+  string outputFolder = "/app/output/";
 
   return 0;
 
