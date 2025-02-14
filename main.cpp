@@ -5,7 +5,17 @@
 #include "Color.hpp"
 #include "ImageHandler.hpp"
 
+
 using namespace std;
+void mapImageAndSave(const string &inputName, ColorMap &colorMap, ImageHandler &imageHandler) {
+  string inputFolder = "test_images/";
+  string outputFolder = "/app/output/";
+
+  imageHandler.readImage(inputFolder+ inputName);
+  imageHandler.mapImage(colorMap);
+  imageHandler.saveImage(outputFolder + inputName);
+}
+
 int main() {
   Color red = Color(255, 0, 0);
   Color green = Color(0, 255, 0);
@@ -24,12 +34,19 @@ int main() {
     cout << color.getHex() << " is closest to " << colorMap1.getClosestColor(color).getHex() << endl;
   }
 
-  string inputFolder = "test_images/";
-  string outputFolder = "/app/output/";
+  ImageHandler imageHandler = ImageHandler();
 
-  ImageHandler imageHandler = ImageHandler(inputFolder + "img1.jpg");
-  imageHandler.mapImage(colorMap1);
-  imageHandler.saveImage(outputFolder + "img1.jpg");
+  mapImageAndSave("forh.png", colorMap1, imageHandler);
+
+  mapImageAndSave("yushin.png", colorMap1, imageHandler);
+  mapImageAndSave("sopp.png", colorMap1, imageHandler);
+
+
+
+
+
+
+
 
 
   return 0;
