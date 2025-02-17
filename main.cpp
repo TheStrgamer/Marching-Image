@@ -14,6 +14,12 @@ void mapImageAndSave(const string &inputName, ColorMap &colorMap, ImageHandler &
   imageHandler.readImage(inputFolder+ inputName);
   imageHandler.mapImage(colorMap);
   imageHandler.saveImage(outputFolder + inputName);
+  for (int i = 1; i < 18; i++) {
+    imageHandler.blurImage(i*2+1);
+    imageHandler.mapImage(colorMap);
+    imageHandler.saveImage(outputFolder + "blurred_" + to_string(i) + "_" + inputName);
+    cout << "Saved " << outputFolder + "blurred_" + to_string(i) + "_" + inputName << endl;
+  }
 }
 
 int main() {
@@ -25,21 +31,15 @@ int main() {
   Color yellow = Color(255, 255, 0);
   Color cyan = Color(0, 255, 255);
   Color magenta = Color(255, 0, 255);
+  Color gray = Color(128, 128, 128);
+  Color orange = Color(255, 165, 0);
 
-  vector<Color> colors = {red, green, blue, black, white, yellow, cyan, magenta};
-  vector<string> names = {"red", "green", "blue", "black", "white", "yellow", "cyan", "magenta"};
+  vector<Color> colors = {orange, red, yellow, blue, white, black, green};
   ColorMap colorMap1 = ColorMap(colors);
-  vector<Color> colors2 = {Color(255, 55, 13), Color(124, 255, 0), Color(12, 90, 55)};
-  for (const auto &color : colors2) {
-    cout << color.getHex() << " is closest to " << colorMap1.getClosestColor(color).getHex() << endl;
-  }
 
   ImageHandler imageHandler = ImageHandler();
 
-  mapImageAndSave("forh.png", colorMap1, imageHandler);
-
-  mapImageAndSave("yushin.png", colorMap1, imageHandler);
-  mapImageAndSave("sopp.png", colorMap1, imageHandler);
+  mapImageAndSave("img1.jpg", colorMap1, imageHandler);
 
 
 

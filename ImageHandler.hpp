@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <pthread.h>
 
 using namespace cv;
 
@@ -28,22 +27,19 @@ class ImageHandler {
     void saveImage(const std::string &path);
     void mapImage(ColorMap &colorMap);
     void mapImage(ColorMap &colorMap, const std::string &path);
+    void blurImage(int kernelSize);
 
   private:
-    static void *handleRow(void *args);
     Mat image;
     Mat outputImage;
     ColorMap *colorMapPtr;
     int currentRow;
-    pthread_mutex_t mutex;
 };
 
 inline ImageHandler::ImageHandler() {
-    pthread_mutex_init(&mutex, NULL);
 }
 inline ImageHandler::ImageHandler(const std::string &path) {
     readImage(path);
-    pthread_mutex_init(&mutex, NULL);
 }
 
 inline void ImageHandler::readImage(const std::string &path) {
@@ -59,42 +55,20 @@ inline void ImageHandler::saveImage(const std::string &path) {
     imwrite(path, outputImage);
 }
 
-void *ImageHandler::handleRow(void *args) {
-    ImageHandler *self = static_cast<ImageHandler *>(args);
-
-    while (true) {
-        pthread_mutex_lock(&self->mutex);
-        int row = self->currentRow++;
-        pthread_mutex_unlock(&self->mutex);
-
-        if (row >= self->image.rows) {
-            return NULL;
-        }
-
-        for (int j = 0; j < self->image.cols; j++) {
-            Vec3b pixel = self->image.at<Vec3b>(row, j);
-            Color color = pixelToColor(pixel);
-            colorToPixel(self->colorMapPtr->getClosestColor(color), pixel);
-            self->outputImage.at<Vec3b>(row, j) = pixel;
-        }
-    }
-    return NULL;
-}
-
 inline void ImageHandler::mapImage(ColorMap &colorMap) {
-    colorMapPtr = &colorMap;
-    currentRow = 0;
-    
-    int numThreads = std::min(4, image.rows);
-    std::vector<pthread_t> threads(numThreads);
-    
-    for (int i = 0; i < numThreads; i++) {
-        pthread_create(&threads[i], NULL, handleRow, this);
+    if (image.empty()) {
+        std::cerr << "Error: No image loaded.\n";
+        return;
     }
-    
-    for (auto &thread : threads) {
-        pthread_join(thread, NULL);
-    }
+    cv::parallel_for_(cv::Range(0, image.rows), [&](const cv::Range &range) {
+        for (int i = range.start; i < range.end; ++i) {
+            Vec3b *rowPtr = outputImage.ptr<Vec3b>(i);
+            for (int j = 0; j < image.cols; j++) {
+                Color color = pixelToColor(rowPtr[j]);
+                colorToPixel(colorMap.getClosestColor(color), rowPtr[j]);
+            }
+        }
+    });
 }
 
 inline void ImageHandler::mapImage(ColorMap &colorMap, const std::string &path) {
@@ -103,3 +77,13 @@ inline void ImageHandler::mapImage(ColorMap &colorMap, const std::string &path) 
         mapImage(colorMap);
     }
 }
+
+inline void ImageHandler::blurImage(int kernelSize) {
+    if (image.empty()) {
+        std::cerr << "Error: No image loaded.\n";
+        return;
+    }
+    cv::blur(image, outputImage, cv::Size(kernelSize, kernelSize));
+}
+
+

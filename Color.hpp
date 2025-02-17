@@ -238,5 +238,3 @@ inline void Color::subtractColor(const std::string &color) {
 inline int Color::getDistance(const Color &color) const {
   return std::sqrt(std::pow(red - color.red, 2) + std::pow(green - color.green, 2) + std::pow(blue - color.blue, 2));
 }
-
-
