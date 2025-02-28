@@ -86,7 +86,8 @@ void ImageHandler::blurImage(int kernelSize) {
         std::cerr << "Error: No image loaded.\n";
         return;
     }
-    cv::blur(image, outputImage, cv::Size(kernelSize, kernelSize));
+    //cv::blur(image, outputImage, cv::Size(kernelSize, kernelSize));
+    cv::bilateralFilter(image, outputImage, kernelSize, kernelSize * 2, kernelSize / 2);
 }
 
 

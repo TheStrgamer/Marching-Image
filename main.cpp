@@ -14,8 +14,8 @@ void mapImageAndSave(const string &inputName, ColorMap &colorMap, ImageHandler &
   imageHandler.readImage(inputFolder+ inputName);
   imageHandler.mapImage(colorMap);
   imageHandler.saveImage(outputFolder + inputName);
-  for (int i = 1; i < 6; i++) {
-    imageHandler.blurImage(i*3+1);
+  for (int i = 1; i < 5; i++) {
+    imageHandler.blurImage(i*12+1);
     imageHandler.mapImage(colorMap);
     imageHandler.saveImage(outputFolder + "blurred_" + to_string(i) + "_" + inputName);
     cout << "Saved " << outputFolder + "blurred_" + to_string(i) + "_" + inputName << endl;
@@ -39,7 +39,7 @@ int main() {
 
   ImageHandler imageHandler = ImageHandler();
 
-  mapImageAndSave("rickroll.jpg", colorMap1, imageHandler);
+  mapImageAndSave("smt.jpg", colorMap1, imageHandler);
 
 
   return 0;
