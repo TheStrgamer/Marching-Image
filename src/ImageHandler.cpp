@@ -1,9 +1,10 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <string>
-#include <vector>
+#include "../header/ImageHandler.hpp"
+#include "../header/Color.hpp"
+#include "../header/ColorMap.hpp"
 
-using namespace cv;
 /**
  * @brief Convert a color to a pixel
  * @param color The color to convert
@@ -27,35 +28,13 @@ Color pixelToColor(const Vec3b &pixel) {
     return color;
 }
 
-/**
- * @brief  A class to handle image reading writing and processing
- * A class to handle image reading writing and processing. It has functions for reading, saving, blurring and mapping images
- */
-class ImageHandler {
-  public:
-    ImageHandler();
-    ImageHandler(const std::string &path);
-    void readImage(const std::string &path);
-    void saveImage(const std::string &path);
-    void mapImage(ColorMap &colorMap);
-    void mapImage(ColorMap &colorMap, const std::string &path);
-    void blurImage(int kernelSize);
-
-  private:
-    Mat image;
-    Mat outputImage;
-    ColorMap *colorMapPtr;
-    int currentRow;
-};
-
-
-inline ImageHandler::ImageHandler() {
+ImageHandler::ImageHandler() {
 }
-inline ImageHandler::ImageHandler(const std::string &path) {
+ImageHandler::ImageHandler(const std::string &path) {
     readImage(path);
 }
 
-inline void ImageHandler::readImage(const std::string &path) {
+void ImageHandler::readImage(const std::string &path) {
     image = imread(path);
     if (image.empty()) {
         std::cerr << "Error: Could not read image at " << path << std::endl;
@@ -64,21 +43,21 @@ inline void ImageHandler::readImage(const std::string &path) {
     outputImage = image.clone();
 }
 
-inline void ImageHandler::saveImage(const std::string &path) {
+void ImageHandler::saveImage(const std::string &path) {
     imwrite(path, outputImage);
 }
 /**
  * @brief Map the image by setting the color of each pixel to the closest color in the color map
  * @param colorMap The color map to use
  */
-inline void ImageHandler::mapImage(ColorMap &colorMap) {
+void ImageHandler::mapImage(const ColorMap &colorMap) {
     if (image.empty()) {
         std::cerr << "Error: No image loaded.\n";
         return;
     }
     cv::parallel_for_(cv::Range(0, image.rows), [&](const cv::Range &range) {
         for (int i = range.start; i < range.end; ++i) {
-            Vec3b *rowPtr = outputImage.ptr<Vec3b>(i);
+            auto *rowPtr = outputImage.ptr<Vec3b>(i);
             for (int j = 0; j < image.cols; j++) {
                 Color color = pixelToColor(rowPtr[j]);
                 colorToPixel(colorMap.getClosestColor(color), rowPtr[j]);
@@ -91,7 +70,7 @@ inline void ImageHandler::mapImage(ColorMap &colorMap) {
  * @param colorMap The color map to use
  * @param path The path to read the image from
  */
-inline void ImageHandler::mapImage(ColorMap &colorMap, const std::string &path) {
+void ImageHandler::mapImage(ColorMap &colorMap, const std::string &path) {
     readImage(path);
     if (!image.empty()) {
         mapImage(colorMap);
@@ -102,7 +81,7 @@ inline void ImageHandler::mapImage(ColorMap &colorMap, const std::string &path) 
  * Blurs the image using a kernel of the given size. Useful for reducing noise before mapping.
  * @param kernelSize The size of the kernel
  */
-inline void ImageHandler::blurImage(int kernelSize) {
+void ImageHandler::blurImage(int kernelSize) {
     if (image.empty()) {
         std::cerr << "Error: No image loaded.\n";
         return;

@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "ColorMap.hpp"
-#include "Color.hpp"
-#include "ImageHandler.hpp"
+#include "header/ColorMap.hpp"
+#include "header/Color.hpp"
+#include "header/ImageHandler.hpp"
 
 
 using namespace std;
@@ -14,8 +14,8 @@ void mapImageAndSave(const string &inputName, ColorMap &colorMap, ImageHandler &
   imageHandler.readImage(inputFolder+ inputName);
   imageHandler.mapImage(colorMap);
   imageHandler.saveImage(outputFolder + inputName);
-  for (int i = 1; i < 18; i++) {
-    imageHandler.blurImage(i*2+1);
+  for (int i = 1; i < 6; i++) {
+    imageHandler.blurImage(i*3+1);
     imageHandler.mapImage(colorMap);
     imageHandler.saveImage(outputFolder + "blurred_" + to_string(i) + "_" + inputName);
     cout << "Saved " << outputFolder + "blurred_" + to_string(i) + "_" + inputName << endl;
@@ -39,14 +39,7 @@ int main() {
 
   ImageHandler imageHandler = ImageHandler();
 
-  mapImageAndSave("img1.jpg", colorMap1, imageHandler);
-
-
-
-
-
-
-
+  mapImageAndSave("rickroll.jpg", colorMap1, imageHandler);
 
 
   return 0;

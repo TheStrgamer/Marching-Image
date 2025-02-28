@@ -11,8 +11,12 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_executable(Colormap
     main.cpp
-        ColorMap.hpp
-        Color.hpp
-        ImageHandler.hpp)
+        header/ColorMap.hpp
+        header/Color.hpp
+        header/ImageHandler.hpp
+        
+        src/ColorMap.cpp
+        src/Color.cpp
+        src/ImageHandler.cpp)
 
 target_link_libraries(Colormap ${OpenCV_LIBS})
