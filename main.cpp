@@ -14,12 +14,16 @@ void mapImageAndSave(const string &inputName, ColorMap &colorMap, ImageHandler &
   imageHandler.readImage(inputFolder+ inputName);
   imageHandler.mapImage(colorMap);
   imageHandler.saveImage(outputFolder + inputName);
-  for (int i = 1; i < 5; i++) {
-    imageHandler.blurImage(i*12+1);
+  for (int i = 2; i < 5; i++) {
+    imageHandler.blurImage(i * 12 + 1);
     imageHandler.mapImage(colorMap);
-    imageHandler.saveImage(outputFolder + "blurred_" + to_string(i) + "_" + inputName);
-    cout << "Saved " << outputFolder + "blurred_" + to_string(i) + "_" + inputName << endl;
+    imageHandler.removeIslands(100);
+
+    string outputFileName = outputFolder + "b_" + to_string(i) + inputName;
+    imageHandler.saveImage(outputFileName);
+    cout << "Saved " << outputFileName << endl;
   }
+
 }
 
 int main() {

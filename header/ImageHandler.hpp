@@ -31,6 +31,7 @@ class ImageHandler {
     void mapImage(const ColorMap &colorMap);
     void mapImage(ColorMap &colorMap, const std::string &path);
     void blurImage(int kernelSize);
+    void removeIslands(int islandSize);
 
   private:
     Mat image;
