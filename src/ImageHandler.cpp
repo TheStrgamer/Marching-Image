@@ -43,6 +43,11 @@ void ImageHandler::readImage(const std::string &path) {
     outputImage = image.clone();
 }
 
+void ImageHandler::setImage(const cv::Mat &img) {
+    image = img.clone();
+    outputImage = img.clone();
+}
+
 void ImageHandler::saveImage(const std::string &path) {
     imwrite(path, outputImage);
 }
@@ -89,6 +94,8 @@ void ImageHandler::blurImage(int kernelSize) {
     cv::bilateralFilter(image, outputImage, kernelSize, kernelSize * 2, kernelSize / 2);
 }
 
+
+// TODO make this work better, kinda ass rn.
 /**
  * @brief Remove small islands from the image
  * Removes small islands of color from the image. An island is a group of pixels of the same color.

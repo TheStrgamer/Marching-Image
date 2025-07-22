@@ -27,6 +27,7 @@ class ImageHandler {
     ImageHandler();
     explicit ImageHandler(const std::string &path);
     void readImage(const std::string &path);
+    void setImage(const Mat &img);
     void saveImage(const std::string &path);
     void mapImage(const ColorMap &colorMap);
     void mapImage(ColorMap &colorMap, const std::string &path);

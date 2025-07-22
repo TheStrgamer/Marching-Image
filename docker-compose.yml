@@ -5,3 +5,5 @@ services:
       - ./output:/app/output
     stdin_open: true
     tty: true
+    ports:
+      - "8080:8080"
