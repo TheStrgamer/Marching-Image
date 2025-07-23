@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import ImageUpload from './components/ImageUpload'
+import ColorpickerList from './components/ColorpickerList'
 
 
 function App() {
@@ -14,7 +15,9 @@ function App() {
       <div>
         <h1>Upload image to map it</h1>
         <ImageUpload />
-        
+
+        <h2>Colors</h2>
+        <ColorpickerList />        
       </div>
     </>
   )
