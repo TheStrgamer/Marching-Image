@@ -101,7 +101,7 @@ void mapColors(const std::vector<std::string> &colors, const cv::Mat &image) {
     imageHandler.setImage(image);
     imageHandler.mapImage(colorMap);
     imageHandler.saveImage(outputFolder + "mapped_image.jpg");
-    for (int i = 2; i < 5; i++) {
+    for (int i = 4; i < 5; i++) {
         imageHandler.blurImage(i * 12 + 1);
         imageHandler.mapImage(colorMap);
         imageHandler.removeIslands(100);
@@ -131,7 +131,6 @@ crow::response Server::handleColorMapRequest(const std::string& body) {
             return crow::response(400, "Could not decode image");
         }
         std::vector<std::string> colors = parsed.value("colors", std::vector<std::string>{});
-        int threshold = parsed.value("threshold", 0);
         mapColors(colors, mat);
 
         
