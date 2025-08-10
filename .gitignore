@@ -39,3 +39,5 @@ build/*
 .env
 /test_images/*
 output/*
+
+frontend/colormap/node_modules/*
