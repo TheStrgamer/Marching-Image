@@ -28,10 +28,20 @@ std::string toHex(int num)
  * @return The number
  */
 int toNum(const std::string &hex) {
-  const std::string hexChars = "0123456789ABCDEF";
     int num = 0;
-    for (int i = 0; i < hex.length(); i++) {
-      num = num * 16 + hexChars.find(hex[i]);
+    for (char c : hex) {
+        char cUpper = std::toupper(static_cast<unsigned char>(c));
+        int val = -1;
+
+        if (cUpper >= '0' && cUpper <= '9') {
+            val = cUpper - '0';
+        } else if (cUpper >= 'A' && cUpper <= 'F') {
+            val = cUpper - 'A' + 10;
+        } else {
+            throw std::invalid_argument("Invalid hex character");
+        }
+
+        num = num * 16 + val;
     }
     return num;
 }
@@ -86,10 +96,15 @@ Color::Color() {
    * @param hex The hexadecimal string
    */
   Color::Color(const std::string& hex) {
+    std::cout << "Creating color from hex: " << hex << std::endl;
+    if (hex.length() != 7 || hex[0] != '#') {
+      throw std::invalid_argument("Invalid hex color format. Expected format: #RRGGBB");
+    }
     this->hex = hex;
     red = toNum(hex.substr(1, 2));
     green = toNum(hex.substr(3, 2));
     blue = toNum(hex.substr(5, 2));
+    std::cout << "Color created with RGB: (" << red << ", " << green << ", " << blue << ") and hex: " << this->hex << std::endl;
   }
   /**
    * @brief Get the red value
@@ -193,13 +208,6 @@ Color::Color() {
    * @return The distance
    */
   int Color::getDistance(const Color &color) const {
-         int rMean = (red + color.red) / 2;
-     int dr = red - color.red;
-     int dg = green - color.green;
-     int db = blue - color.blue;
-
-     return sqrt(((512 + rMean) * dr * dr) >> 8
-               + 4 * dg * dg
-               + ((767 - rMean) * db * db) >> 8);
+    return std::sqrt(std::pow(red - color.red, 2) + std::pow(green - color.green, 2) + std::pow(blue - color.blue, 2));
     //return std::sqrt(std::pow(red - color.red, 2) + std::pow(green - color.green, 2) + std::pow(blue - color.blue, 2));
   }

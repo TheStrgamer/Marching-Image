@@ -99,10 +99,15 @@ void mapColors(const std::vector<std::string> &colors, const cv::Mat &image) {
     ColorMap colorMap = ColorMap(colors);
     std::string outputFolder = "/app/output/";
 
+    std::cout << "colors: ";
+    for (const Color &color : colorMap.getColors()) {
+        std::cout << color.getHex() << " ";
+    }
+
     imageHandler.setImage(image);
     imageHandler.mapImage(colorMap);
     imageHandler.saveImage(outputFolder + "mapped_image.jpg");
-    for (int i = 3; i < 5; i++) {
+    for (int i = 4; i < 5; i++) {
         imageHandler.blurImage(i * 12 + 1);
         imageHandler.mapImage(colorMap);
 

@@ -11,9 +11,9 @@
  * @param pixel The pixel to set
  */
 void colorToPixel(const Color &color, Vec3b &pixel) {
-    pixel[0] = color.getRed();
+    pixel[2] = color.getRed();
     pixel[1] = color.getGreen();
-    pixel[2] = color.getBlue();
+    pixel[0] = color.getBlue();
 }
 /**
  * @brief Convert a pixel to a color
@@ -22,9 +22,9 @@ void colorToPixel(const Color &color, Vec3b &pixel) {
  */
 Color pixelToColor(const Vec3b &pixel) {
     Color color;
-    color.setRed(pixel[0]);
+    color.setRed(pixel[2]);
     color.setGreen(pixel[1]);
-    color.setBlue(pixel[2]);
+    color.setBlue(pixel[0]);
     return color;
 }
 
@@ -75,7 +75,6 @@ void ImageHandler::mapImage(const ColorMap &colorMap) {
                 Color c = pixelToColor(rowPtr[j]);
                 colorToPixel(colorMap.getClosestColor(c), rowPtr[j]);
             }
-            saveImage("/app/output/output_image" + std::to_string(i) + ".jpg");
         }
     });
 }

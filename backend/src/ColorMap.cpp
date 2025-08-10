@@ -117,27 +117,26 @@ void ColorMap::clear() {
  * @param color The color to compare
  * @return The closest color
  */
-Color ColorMap::getClosestColor(const Color& target) const {
-    Color closest = colors.front();
-    int minDistance = closest.getDistance(target);
-
-    for (const auto& c : colors) {
-        if (c.getHex() == target.getHex()) {
-            return c;
-        }
-
-        int distance = c.getDistance(target);
-
-        if (distance < minDistance ||
-           (distance == minDistance && c.getHex() < closest.getHex())) {
-            minDistance = distance;
-            closest = c;
-        }
+Color ColorMap::getClosestColor(const Color& color) const {
+  int minDistance = 1000000;
+  Color col = colors.at(0);
+  for (const auto &c : colors) {
+    if (c.getHex() == color.getHex()) {
+      return c;
     }
-
-    return closest;
+    int distance = c.getDistance(color);
+    if (distance < minDistance) {
+      minDistance = distance;
+      col = c;
+    }
+    if (distance == minDistance) {
+      if (c.getHex() < col.getHex()) {
+        col = c;
+      }
+    }
+  }
+  return col;
 }
-
 
 /**
  * @brief Get the closest color to the given color
