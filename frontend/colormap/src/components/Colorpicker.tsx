@@ -1,4 +1,3 @@
-import React from 'react';
 
 type ColorpickerProps = {
   color: string;
@@ -16,7 +15,7 @@ function Colorpicker({ color, onChange, onRemove }: ColorpickerProps) {
       />
       <div className="color-display" style={{ backgroundColor: color }}></div>
       <button className="removeButton" onClick={onRemove}>
-        Remove
+        X
       </button>
     </div>
   );

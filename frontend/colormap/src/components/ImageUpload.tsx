@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import '../App.css'
-function ImageUpload() {
+
+type form = {
+    setImageParent: (image: string | null) => void;
+    };
+
+function ImageUpload({ setImageParent }: form) {
   const [image, setImage] = useState<string | null>(null)
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -9,6 +14,7 @@ function ImageUpload() {
       const reader = new FileReader()
       reader.onloadend = () => {
         setImage(reader.result as string)
+        setImageParent(reader.result as string)
       }
       reader.readAsDataURL(file)
     }

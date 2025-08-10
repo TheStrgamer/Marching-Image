@@ -11,9 +11,9 @@
  * @param pixel The pixel to set
  */
 void colorToPixel(const Color &color, Vec3b &pixel) {
-    pixel[2] = color.getRed();
+    pixel[0] = color.getRed();
     pixel[1] = color.getGreen();
-    pixel[0] = color.getBlue();
+    pixel[2] = color.getBlue();
 }
 /**
  * @brief Convert a pixel to a color
@@ -22,9 +22,9 @@ void colorToPixel(const Color &color, Vec3b &pixel) {
  */
 Color pixelToColor(const Vec3b &pixel) {
     Color color;
-    color.setRed(pixel[2]);
+    color.setRed(pixel[0]);
     color.setGreen(pixel[1]);
-    color.setBlue(pixel[0]);
+    color.setBlue(pixel[2]);
     return color;
 }
 
@@ -46,9 +46,13 @@ void ImageHandler::readImage(const std::string &path) {
 void ImageHandler::setImage(const cv::Mat &img) {
     image = img.clone();
     outputImage = img.clone();
+    std::cout << "Image set successfully.\n";
+    saveImage("/app/output/output_image.png");
+    std::cout << "Image saved as output_image.png\n";
 }
 
 void ImageHandler::saveImage(const std::string &path) {
+    std::cout << "Saving image to " << path << std::endl;
     imwrite(path, outputImage);
 }
 /**
@@ -56,17 +60,22 @@ void ImageHandler::saveImage(const std::string &path) {
  * @param colorMap The color map to use
  */
 void ImageHandler::mapImage(const ColorMap &colorMap) {
+    std::cout << "Mapping image with " << colorMap.getColors().size() << " colors.\n";
+    for (const auto &color : colorMap.getColors()) {
+        std::cout << "Color: " << color.getHex() << "\n";
+    }
     if (image.empty()) {
         std::cerr << "Error: No image loaded.\n";
         return;
     }
     cv::parallel_for_(cv::Range(0, image.rows), [&](const cv::Range &range) {
         for (int i = range.start; i < range.end; ++i) {
-            auto *rowPtr = outputImage.ptr<Vec3b>(i);
+            auto *rowPtr = outputImage.ptr<cv::Vec3b>(i);
             for (int j = 0; j < image.cols; j++) {
-                Color color = pixelToColor(rowPtr[j]);
-                colorToPixel(colorMap.getClosestColor(color), rowPtr[j]);
+                Color c = pixelToColor(rowPtr[j]);
+                colorToPixel(colorMap.getClosestColor(c), rowPtr[j]);
             }
+            saveImage("/app/output/output_image" + std::to_string(i) + ".jpg");
         }
     });
 }
@@ -102,17 +111,19 @@ void ImageHandler::blurImage(int kernelSize) {
  * @param islandSize The maximum size of an island to remove
 */
 void ImageHandler::removeIslands(int islandSize) {
-    if (outputImage.empty()) return;
+    if (outputImage.empty() || islandSize <= 0) return;
 
     cv::Mat visited = cv::Mat::zeros(outputImage.size(), CV_8U);
+    std::vector<std::pair<int, int>> directions = {{0,1},{1,0},{0,-1},{-1,0}};
 
-    std::vector<std::pair<int, int>> directions = {
-        {0, 1}, {1, 0}, {0, -1}, {-1, 0}
+    auto colorsEqual = [](const Vec3b &a, const Vec3b &b) {
+        // Tolerant equality check (threshold 0 → exact match)
+        return a == b;
     };
 
     auto floodFill = [&](int x, int y, const Vec3b &targetColor) {
         std::vector<cv::Point> stack, islandPixels;
-        stack.push_back(cv::Point(x, y));
+        stack.push_back({x, y});
         visited.at<uchar>(y, x) = 1;
 
         while (!stack.empty()) {
@@ -123,47 +134,46 @@ void ImageHandler::removeIslands(int islandSize) {
             for (const auto &dir : directions) {
                 int nx = p.x + dir.first;
                 int ny = p.y + dir.second;
-
-                if (nx >= 0 && nx < outputImage.cols && ny >= 0 && ny < outputImage.rows && !visited.at<uchar>(ny, nx)) {
+                if (nx >= 0 && nx < outputImage.cols && ny >= 0 && ny < outputImage.rows &&
+                    !visited.at<uchar>(ny, nx)) {
                     Vec3b currentColor = outputImage.at<Vec3b>(ny, nx);
-                    if (currentColor == targetColor) {
-                        stack.push_back(cv::Point(nx, ny));
+                    if (colorsEqual(currentColor, targetColor)) {
+                        stack.push_back({nx, ny});
                         visited.at<uchar>(ny, nx) = 1;
                     }
                 }
             }
         }
-
         return islandPixels;
     };
 
-    auto mostFrequentColor = [&](const std::vector<cv::Point> &points) {
+    auto mostFrequentColor = [&](const std::vector<cv::Point> &points) -> Vec3b {
         std::map<std::tuple<uchar, uchar, uchar>, int> colorCount;
-
         for (const auto &p : points) {
             for (const auto &dir : directions) {
                 int nx = p.x + dir.first;
                 int ny = p.y + dir.second;
                 if (nx >= 0 && nx < outputImage.cols && ny >= 0 && ny < outputImage.rows) {
                     Vec3b color = outputImage.at<Vec3b>(ny, nx);
-                    colorCount[std::make_tuple(color[0], color[1], color[2])]++;
+                    colorCount[{color[0], color[1], color[2]}]++;
                 }
             }
         }
+        if (colorCount.empty()) return outputImage.at<Vec3b>(points.front().y, points.front().x);
 
-        auto maxElement = std::max_element(colorCount.begin(), colorCount.end(),
-                                           [](const auto &a, const auto &b) { return a.second < b.second; });
-
+        auto maxElement = std::max_element(
+            colorCount.begin(), colorCount.end(),
+            [](const auto &a, const auto &b) { return a.second < b.second; }
+        );
         return Vec3b(std::get<0>(maxElement->first), std::get<1>(maxElement->first), std::get<2>(maxElement->first));
     };
 
     for (int y = 0; y < outputImage.rows; y++) {
         for (int x = 0; x < outputImage.cols; x++) {
-            if (visited.at<uchar>(y, x) == 0) {
+            if (!visited.at<uchar>(y, x)) {
                 Vec3b targetColor = outputImage.at<Vec3b>(y, x);
-                std::vector<cv::Point> island = floodFill(x, y, targetColor);
-
-                if (island.size() <= islandSize) {
+                auto island = floodFill(x, y, targetColor);
+                if (static_cast<int>(island.size()) <= islandSize) {
                     Vec3b newColor = mostFrequentColor(island);
                     for (const auto &p : island) {
                         outputImage.at<Vec3b>(p.y, p.x) = newColor;

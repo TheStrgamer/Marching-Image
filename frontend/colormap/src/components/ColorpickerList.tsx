@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Colorpicker from './Colorpicker';
 
-function ColorpickerList() {
+type form = {
+      setColorList: (colors: string[]) => void;
+};
+
+function ColorpickerList({setColorList}: form) {
   const [colors, setColors] = useState(['#FF0000', '#FFFFFF']);
 
   const updateColor = (index: number, newColor: string) => {
     const updated = [...colors];
     updated[index] = newColor;
     setColors(updated);
+    setColorList(updated);
     console.log(`Color at index ${index} updated to ${newColor}`);
   };
 
   const removeColor = (index: number) => {
     const updated = colors.filter((_, i) => i !== index);
     setColors(updated);
+    setColorList(updated);
   };
 
   const addColor = () => {
     setColors([...colors, '#FFFFFF']);
+    setColorList([...colors, '#FFFFFF']);
   };
 
   return (

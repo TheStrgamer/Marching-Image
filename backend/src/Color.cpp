@@ -193,5 +193,13 @@ Color::Color() {
    * @return The distance
    */
   int Color::getDistance(const Color &color) const {
-    return std::sqrt(std::pow(red - color.red, 2) + std::pow(green - color.green, 2) + std::pow(blue - color.blue, 2));
+         int rMean = (red + color.red) / 2;
+     int dr = red - color.red;
+     int dg = green - color.green;
+     int db = blue - color.blue;
+
+     return sqrt(((512 + rMean) * dr * dr) >> 8
+               + 4 * dg * dg
+               + ((767 - rMean) * db * db) >> 8);
+    //return std::sqrt(std::pow(red - color.red, 2) + std::pow(green - color.green, 2) + std::pow(blue - color.blue, 2));
   }

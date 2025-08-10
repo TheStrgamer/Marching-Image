@@ -10,6 +10,7 @@
 #include "../header/ColorMap.hpp"
 #include "../header/ImageHandler.hpp"
 
+
 Server::Server(int port) : port(port), running(false) {
     std::cout << "Server initialized on port " << port << std::endl;
 }
@@ -101,12 +102,11 @@ void mapColors(const std::vector<std::string> &colors, const cv::Mat &image) {
     imageHandler.setImage(image);
     imageHandler.mapImage(colorMap);
     imageHandler.saveImage(outputFolder + "mapped_image.jpg");
-    for (int i = 4; i < 5; i++) {
+    for (int i = 3; i < 5; i++) {
         imageHandler.blurImage(i * 12 + 1);
         imageHandler.mapImage(colorMap);
-        imageHandler.removeIslands(100);
 
-        std::string outputFileName = outputFolder + "b_" + std::to_string(i) + "mapped_image.jpg";
+        std::string outputFileName = outputFolder + "b_" + std::to_string(i) + "mapped_image.png";
         imageHandler.saveImage(outputFileName);
         std::cout << "Saved " << outputFileName << std::endl;
     }
@@ -131,9 +131,7 @@ crow::response Server::handleColorMapRequest(const std::string& body) {
             return crow::response(400, "Could not decode image");
         }
         std::vector<std::string> colors = parsed.value("colors", std::vector<std::string>{});
-        mapColors(colors, mat);
-
-        
+        mapColors(colors, mat);        
 
         return crow::response(200, "Image received and processed successfully");
 

@@ -1,44 +1,16 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
+  width: 95%;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-top: 2rem;
+  width: 100%;
 }
 
 .image-upload {
@@ -46,29 +18,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 80%;
+  justify-content: top;
   margin-left: auto;
   margin-right: auto;
+  flex:5;
+  height: 100%;
 }
 
 .image-upload input[type="file"] {
   margin: auto 0;
-  border: 2px solid #ccc;
   border-radius: 2px;
   }
+
+.image-upload img {
+  max-width: 100%;
+  max-height: 400px;
+  margin-top: 1rem;
+}
 
 .colorpicker-list {
   display: flex;
   flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
+  gap: 1rem;
   margin-top: 2rem;
+  width: 125px;
+  flex: 1;
 }
 
 .colorpicker-list button {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  margin: 5px;
   padding: 0;
   transition: transform 0.2s;
   margin-bottom: 1rem;
@@ -78,10 +60,18 @@
   background-color: #99999933;
 }
 
+.colorpicker {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 125px;
+  height: 50px;
+}
+
+
 .colorpicker input {
   width: 75px;
   height: 50px;
-  margin: 5px;
   cursor: pointer;
   border: none
 }
@@ -90,8 +80,9 @@
   background-color: #ff4d4d;
   color: white;
   border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: 50%;
   cursor: pointer;
+  width: 25px;
+  height:25px;
 }
 
