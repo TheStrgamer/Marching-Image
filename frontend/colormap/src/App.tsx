@@ -34,7 +34,7 @@ function App() {
         const data = await response.json();
 
         if (data.image) {
-          setResultImage(`data:image/jpeg;base64,${data.image}`);
+          setResultImage(`data:image/png;base64,${data.image}`);
         } else {
           console.log("Success:", data);
         }
