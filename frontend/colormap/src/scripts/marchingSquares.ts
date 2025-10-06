@@ -8,25 +8,6 @@ const corners: number[][] = [
     [1,0]
 ]
 
-const edges: number[][][] = [
-  [],
-  [[3,0]],
-  [[0,1]],
-  [[3,1]],
-  [[1,2]],
-  [[3,0],[1,2]],
-  [[0,2]],
-  [[3,2]],
-  [[2,3]],
-  [[0,2]],
-  [[1,2],[0,3]],
-  [[1,3]],
-  [[1,3]],
-  [[0,1]],
-  [[3,0]],
-  []
-];
-
 const vertLookup: number[][][] = [
   [],//0000
   [[0,0],[1,0],[0,1]],//0001
@@ -46,10 +27,10 @@ const vertLookup: number[][][] = [
   [[0,0],[0,2],[2,0],[2,2]]//1111
 ];
 
-const topFaceLookup: number[][][] = [
+const topFaceLookup: number[][][] = [ //The order of vert offsets in vertlookup
   [], // 0000: empty
-  [[0, 2, 1]],// 0001
-  [[0, 2, 1]],// 0010
+  [[0, 2, 1]],  // 0001
+  [[0, 2, 1]],  // 0010
   [[0, 1, 3], [0, 3, 2]],  // 0011
   [[0, 2, 1]],  // 0100
   [[0, 1, 3], [1, 2, 3]],  // 0101
@@ -71,8 +52,8 @@ const faceLookupBottom: number[][][] = topFaceLookup.map(triangles =>
   triangles.map(tri => [tri[0], tri[2], tri[1]])
 );
 
-const sideFaceLookup: number[][][] = [
-  [], // 0000: empty - no side faces
+const sideFaceLookup: number[][][] = [ //Offsets from start, does not use vertlookup since it has z offsets too.
+  [], // 0000: empty
   [[1,0,0],[0,1,0],[1,0,1], [1,0,1],[0,1,0],[0,1,1]], // 0001 - 2 faces
   [[1,0,0],[2,1,0],[1,0,1], [1,0,1],[2,1,0],[2,1,1]], // 0010 - 2 faces
   [[0,1,0],[0,1,1],[2,1,1], [2,1,1],[2,1,0],[0,1,0]], // 0011 - 2 faces
@@ -87,7 +68,7 @@ const sideFaceLookup: number[][][] = [
   [[0,0,2],[2,0,2],[0,1,1], [0,0,2],[0,1,1],[2,1,1]], // 1100 - 2 faces
   [[0,0,2],[2,0,2],[0,0,0], [0,0,0],[2,0,2],[2,1,1]], // 1101 - 2 faces
   [[0,1,1],[0,0,2],[2,0,0], [0,1,1],[2,0,0],[2,0,2]], // 1110 - 2 faces
-  []  // 1111: all solid - no side faces
+  []  // 1111: all solid and no faces
 ];
 
 
@@ -125,19 +106,21 @@ class marchingSquares {
     vertsFromMatrix(matrix:number[][], width:number, height:number): void {
         for (let i = 0; i<=height; i++) {
             for (let j = 0; j<=width; j++) {
-                // if (matrix[i][i] == 1) {
-                //     this.verticies[i][j][0] = new Verticie(i,j,0);
-                //     this.verticies[i][j][1] = new Verticie(i,j,1);
-                // }
+                this.addVertsFromSquare(matrix,j,i)
             }
         } 
     }
-    
-    addVertsFromSquare(matrix:number[][],startX:number,startY:number) {
+
+    indexFromMatrix(matrix:number[][],startX:number,startY:number):number {
         let index = +(matrix[startX][startY] === 1);
         index += +(matrix[startX + 1][startY] === 1) * 2;
         index += +(matrix[startX + 1][startY + 1] === 1) * 4;
         index += +(matrix[startX][startY + 1] === 1) * 8;
+        return index;
+    }
+    
+    addVertsFromSquare(matrix:number[][],startX:number,startY:number) {
+        let index = this.indexFromMatrix(matrix,startX,startY);
         let length = vertLookup[index].length;
         for (let i = 0; i<length;i++) {
             let x = startX+vertLookup[index][i][0];
@@ -150,8 +133,46 @@ class marchingSquares {
         }
     }
 
-    marchSquare(matrix:number[][],startX:number,startY:number,startZ:number) {
+    marchSquare(matrix:number[][],startX:number,startY:number) {
         //Todo lookup edges based on verticies in square
+        let index = this.indexFromMatrix(matrix,startX,startY);
+        let topOffsets = topFaceLookup[index];
+        for (let i = 0; i<topOffsets.length; i++) {
+            let offsets = topOffsets[i];
+            let vl = vertLookup[index];
+            let verts = offsets.map(offset => {
+                const [dx, dy] = vl[offset];
+                return this.verticies[startX + dx][startY + dy][1]!;
+            });
+            this.faces.push(new Face(verts));
+        }
+        let bottomOffsets = faceLookupBottom[index];
+        for (let i = 0; i<bottomOffsets.length; i++) {
+            let offsets = bottomOffsets[i];
+            let vl = vertLookup[index];
+            let verts = offsets.map(offset => {
+                const [dx, dy] = vl[offset];
+                return this.verticies[startX + dx][startY + dy][0]!;
+            });
+            this.faces.push(new Face(verts));
+        }
 
+        let sideOffsets = sideFaceLookup[index];
+        for (let i = 0; i<sideOffsets.length; i+=3) {
+            let offsets = sideOffsets[i];
+            let verts = offsets.map(offset => {
+                const [dx, dy, dz] = offsets;
+                return this.verticies[startX + dx][startY + dy][dz]!;
+            });
+            this.faces.push(new Face(verts));
+        }
+    }
+
+    marchingSquares(matrix:number[][],startX:number,startY:number) {
+        for (let i = 0; i < matrix.length; i++) {
+            for (let j = 0; j< matrix[0].length; j++) {
+                this.marchSquare(matrix,j,i)
+            }
+        }
     }
 }
