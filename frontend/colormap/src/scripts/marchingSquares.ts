@@ -1,93 +1,6 @@
 // Will turn a matrix of 0s and 1s into a 3d model by running
 // a customized verion of marching squares
-
-const corners: number[][] = [
-    [0,0],
-    [0,1],
-    [1,1],
-    [1,0]
-]
-
-const vertLookup: number[][][] = [
-  [],//0000
-  [[0,0],[1,0],[0,1]],//0001
-  [[2,0],[1,0],[2,1]],//0010
-  [[0,0],[0,1],[2,0],[2,1]],//0011
-  [[2,2],[2,1],[1,2]],//0100
-  [[0,1],[1,0],[1,2],[2,1]],//0101
-  [[1,0],[1,2],[2,0],[2,2]],//0110
-  [[0,0],[0,1],[2,0],[2,2],[1,2]],//0111
-  [[0,2],[0,1],[1,2]],//1000
-  [[0,0],[1,0],[0,2],[1,2]],//1001
-  [[1,2],[0,1],[2,1],[1,0]],//1010
-  [[2,1],[0,0],[2,0],[0,2]],//1011
-  [[0,2],[2,2],[2,1],[0,1]],//1100
-  [[0,2],[2,2],[0,0],[1,0],[2,1]],//1101
-  [[0,1],[0,2],[1,0],[2,0],[2,2]],//1110
-  [[0,0],[0,2],[2,0],[2,2]]//1111
-];
-
-const topFaceLookup: number[][][] = [ //The order of vert offsets in vertlookup
-  [], // 0000: empty
-  [[0, 2, 1]],  // 0001
-  [[0, 2, 1]],  // 0010
-  [[0, 1, 3], [0, 3, 2]],  // 0011
-  [[0, 2, 1]],  // 0100
-  [[0, 1, 3], [1, 2, 3]],  // 0101
-  [[0, 1, 3], [0, 3, 2]],  // 0110
-  [[0, 1, 4], [0, 4, 2], [2,4,3]],  // 0111
-  [[0, 2, 1]],  // 1000
-  [[0, 1, 3], [0, 3, 2]],  // 1001
-  [[0, 1, 3], [0, 3, 2]],  // 1010
-  [[0, 1, 4], [0, 4, 3], [3,4,2]],  // 1011
-  [[0, 1, 3], [0, 3, 2]],  // 1100
-  [[0, 1, 4], [0, 4, 2], [2,4,3]],  // 1101
-  [[0, 1, 3], [1,4,3], [1,2,4]],  // 1110
-  [[0, 1, 3], [0, 3, 2]]  // 1111
-];
-
-
-//litterally just gives reverse result of previous
-const faceLookupBottom: number[][][] = topFaceLookup.map(triangles =>
-  triangles.map(tri => [tri[0], tri[2], tri[1]])
-);
-
-const sideFaceLookup: number[][][] = [ //Offsets from start, does not use vertlookup since it has z offsets too.
-  [], // 0000: empty
-  [[1,0,0],[0,1,0],[1,0,1], [1,0,1],[0,1,0],[0,1,1]], // 0001 - 2 faces
-  [[1,0,0],[2,1,0],[1,0,1], [1,0,1],[2,1,0],[2,1,1]], // 0010 - 2 faces
-  [[0,1,0],[0,1,1],[2,1,1], [2,1,1],[2,1,0],[0,1,0]], // 0011 - 2 faces
-  [[2,1,2],[1,2,2],[2,1,1], [2,1,1],[1,2,2],[1,2,1]], // 0100 - 2 faces
-  [[1,0,0],[0,1,1],[1,0,1], [1,0,1],[0,1,1],[0,1,0], [0,1,1],[1,2,2],[1,2,1], [1,2,1],[2,1,1],[0,1,1]], // 0101 - diagonal (4 faces)
-  [[1,0,0],[1,2,2],[2,0,0], [2,0,0],[1,2,2],[2,0,2]], // 0110 - 2 faces
-  [[0,1,0],[0,1,1],[2,0,2], [0,1,0],[2,0,2],[2,0,0]], // 0111 - 2 faces
-  [[0,0,2],[1,2,2],[0,0,1], [0,0,1],[1,2,2],[1,2,1]], // 1000 - 2 faces
-  [[0,0,0],[1,0,0],[0,0,2], [0,0,2],[1,0,0],[1,2,2]], // 1001 - 2 faces
-  [[1,2,2],[0,1,1],[1,0,0], [1,0,0],[0,1,1],[0,1,0], [0,1,1],[2,1,1],[2,1,0], [2,1,0],[1,0,0],[0,1,1]], // 1010 - diagonal (4 faces)
-  [[2,1,1],[0,0,0],[0,0,2], [2,1,1],[0,0,2],[2,0,0]], // 1011 - 2 faces
-  [[0,0,2],[2,0,2],[0,1,1], [0,0,2],[0,1,1],[2,1,1]], // 1100 - 2 faces
-  [[0,0,2],[2,0,2],[0,0,0], [0,0,0],[2,0,2],[2,1,1]], // 1101 - 2 faces
-  [[0,1,1],[0,0,2],[2,0,0], [0,1,1],[2,0,0],[2,0,2]], // 1110 - 2 faces
-  []  // 1111: all solid and no faces
-];
-
-
-class Verticie {
-    pos: number[];
-    // constructor(pos: number[]) {
-    //     this.pos = pos;
-    // }
-    constructor(x: number, y: number, z: number) {
-        this.pos = [x,y,z];
-    }
-}
-
-class Face {
-    verts: Verticie[];
-    constructor(verts:Verticie[]) {
-        this.verts = verts;
-    }
-}
+import {Verticie, Face, vertLookup, bottomFaceLookup, topFaceLookup, sideFaceLookup} from "./lookups.ts";
 
 class marchingSquares {
     verticies: (Verticie | null)[][][];
@@ -146,7 +59,7 @@ class marchingSquares {
             });
             this.faces.push(new Face(verts));
         }
-        let bottomOffsets = faceLookupBottom[index];
+        let bottomOffsets = bottomFaceLookup[index];
         for (let i = 0; i<bottomOffsets.length; i++) {
             let offsets = bottomOffsets[i];
             let vl = vertLookup[index];
