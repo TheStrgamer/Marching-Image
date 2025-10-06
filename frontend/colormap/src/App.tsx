@@ -2,6 +2,7 @@ import './App.css'
 import ImageUpload from './components/ImageUpload'
 import ColorpickerList from './components/ColorpickerList'
 import { useState } from 'react';
+import MarchSquareDemo from './components/MarchSquareDemo';
 
 
 
@@ -48,7 +49,7 @@ function App() {
     <>
         <h1>Upload image to map it</h1>
         <div className="content">
-          <div>
+          {/* <div>
           <h2>Colors</h2>
           <ColorpickerList setColorList={setColors} />
           </div>
@@ -64,7 +65,9 @@ function App() {
                 <img src={resultImage} alt="Mapped result" />
               </div>
             )}
-          </div>
+          </div> */}
+
+          <MarchSquareDemo></MarchSquareDemo>
 
         </div>        
     </>
