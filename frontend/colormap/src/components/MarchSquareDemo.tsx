@@ -1,12 +1,35 @@
-import React, { useRef, useState } from "react";
-import { marchingSquares } from "../scripts/marchingSquares";
+import React, { useRef, useState, useEffect } from "react";
 
-function MarchSquareDemo({}) {
+function MarchSquareDemo() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [stlData, setStlData] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const workerRef = useRef<Worker | null>(null);
 
-  // Convert image -> matrix of 0/1
+  useEffect(() => {
+    const worker = new Worker(
+      new URL("../scripts/marchingWorker.ts", import.meta.url),
+      { type: "module" }
+    );
+
+    worker.onmessage = (e) => {
+      const { stl, error } = e.data;
+      if (error) {
+        console.error(error);
+        setIsProcessing(false);
+        return;
+      }
+      setStlData(stl);
+      setIsProcessing(false);
+      triggerDownload(stl, "model.stl");
+    };
+
+    workerRef.current = worker;
+    return () => worker.terminate();
+  }, []);
+
+
   const imageToMatrix = (img: HTMLImageElement, threshold = 240): number[][] => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
@@ -14,55 +37,62 @@ function MarchSquareDemo({}) {
     canvas.height = img.height;
     ctx.drawImage(img, 0, 0, img.width, img.height);
 
-    const imageData = ctx.getImageData(0, 0, img.width, img.height);
-    const data = imageData.data;
+    const { data } = ctx.getImageData(0, 0, img.width, img.height);
 
     const matrix: number[][] = [];
     for (let y = 0; y < img.height; y++) {
       const row: number[] = [];
       for (let x = 0; x < img.width; x++) {
-        const idx = (y * img.width + x) * 4;
-        const r = data[idx];
-        const g = data[idx + 1];
-        const b = data[idx + 2];
-        // Treat "almost white" as 0
-        const value = (r > threshold && g > threshold && b > threshold) ? 0 : 1;
-        row.push(value);
+        const i = (y * img.width + x) * 4;
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        // transparent pixel → treat as background
+        if (a < 10) {
+          row.push(0);
+          continue;
+        }
+
+        // brightness test for solid area
+        const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+        row.push(brightness < threshold ? 1 : 0);
       }
       matrix.push(row);
     }
     return matrix;
   };
 
-  // Handle file input
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const img = new Image();
     img.onload = () => {
       const matrix = imageToMatrix(img);
-      const ms = new marchingSquares(matrix, matrix[0].length, matrix.length);
-      ms.marchingSquares(matrix);
-      const stl = ms.export();
-      setStlData(stl);
-      triggerDownload(stl, "model.stl");
+      setIsProcessing(true);
+      setStlData("");
+      workerRef.current?.postMessage({ matrix });
     };
     img.src = URL.createObjectURL(file);
   };
 
-  // Trigger file download
   const triggerDownload = (data: string, filename: string) => {
     const blob = new Blob([data], { type: "application/sla" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = filename;
+    document.body.appendChild(link);
     link.click();
+    link.remove();
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="marchSquareDemo">
+    <div className="marchSquareDemo" style={{ textAlign: "center", marginTop: "2rem" }}>
       <input
         type="file"
         accept="image/*"
@@ -70,6 +100,8 @@ function MarchSquareDemo({}) {
         onChange={handleFileChange}
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
+
+      {isProcessing && <p>Processing image into 3D model</p>}
       {stlData && <p>STL file generated and downloaded!</p>}
     </div>
   );
