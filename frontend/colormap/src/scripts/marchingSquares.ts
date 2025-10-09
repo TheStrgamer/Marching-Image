@@ -83,7 +83,7 @@ export class marchingSquares {
                 const [dx, dy] = vl[offset];
                 return this.verticies[startY*2 + dy][startX*2 + dx][0]!;
             });
-            //this.faces.push(new Face(verts));
+            this.faces.push(new Face(verts));
         }
 
         let sideOffsets = sideFaceLookup[index];
@@ -110,7 +110,7 @@ export class marchingSquares {
                 verts.push(v!);
             }
 
-            //this.faces.push(new Face(verts));
+            this.faces.push(new Face(verts));
         }
 
     }
