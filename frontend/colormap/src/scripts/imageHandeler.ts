@@ -105,5 +105,25 @@ export class ImageHandler {
     this.ctx.putImageData(out, 0, 0);
   }
 
+  resize(maxSize: number = 720) {
+    if (!this.canvas || !this.ctx) return;
+
+    const imgWidth = this.canvas.width;
+    const imgHeight = this.canvas.height;
+
+    const scale = Math.min(maxSize / Math.max(imgWidth, imgHeight), 1);
+
+    const width = Math.round(imgWidth * scale);
+    const height = Math.round(imgHeight * scale);
+
+    const resizedCanvas = document.createElement("canvas");
+    resizedCanvas.width = width;
+    resizedCanvas.height = height;
+    const resizedCtx = resizedCanvas.getContext("2d")!;
+    resizedCtx.drawImage(this.canvas, 0, 0, width, height);
+
+    this.canvas = resizedCanvas;
+    this.ctx = resizedCtx;
+  }
 
 }

@@ -127,6 +127,7 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
         if (blurMethod == "simple") handler.blurImage(blurFactor);
         else handler.blurImageBilateral(blurFactor)
       }
+      handler.resize(512)
 
       handler.mapImage(colorMap, distMethod == "euclidian");
 
