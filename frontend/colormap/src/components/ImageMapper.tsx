@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import "../App.css";
 import { ColorMap } from "../scripts/colorMapper";
 import { ImageHandler } from "../scripts/imageHandeler";
@@ -20,9 +20,29 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
   const [image, setImage] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
+
   const [blur, setBlur] = useState<boolean>(false);
-  const [blurFactor, setBlurFactor] = useState<number>(3);
+  const [blurFactor, setBlurFactor] = useState<number>(2);
   const [processing, setProcessing] = useState(false);
+
+  const [colorSelection, setColorSelection] = useState<Record<string, boolean>>({});
+
+  useMemo(() => {
+    const obj: Record<string, boolean> = {};
+    colors.forEach(c => (obj[c] = true));
+    setColorSelection(obj);
+  }, [colors]);
+
+  const toggleAll = (checked: boolean) => {
+    const obj: Record<string, boolean> = {};
+    colors.forEach(c => (obj[c] = checked));
+    setColorSelection(obj);
+  };
+
+  const exportSelected = () => {
+    //todo
+    console.log("export selected not implemented");
+  };
 
   const mapColors = async () => {
     if (!image) return;
@@ -39,8 +59,10 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
 
       handler.mapImage(colorMap);
 
-      setResultImage(handler.getDataURL());
-      setResult(handler.getDataURL())
+      const out = handler.getDataURL();
+      setResult(out);
+      setResultImage(out);
+
       handler.cleanup();
     } catch (e) {
       console.error(e);
@@ -64,35 +86,69 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
 
   return (
     <div className="image-handler">
-      <div className="image-upload">
+      <div className="control-panel">
+        <h2>Input</h2>
         <input type="file" accept="image/*" onChange={handleImageChange} />
+        <div className="aligned-items">
+          <label className="inline-check">
+            <input
+              type="checkbox"
+              checked={blur}
+              onChange={(e) => setBlur(e.target.checked)}
+              style={{width: 12}}
+            />
+            blur
+          </label>
+          <label className="inline-check">
+            <input
+              type="number"
+              value={blurFactor}
+              onChange={(e) => setBlurFactor(Number(e.target.value))}
+              min={0}
+              max={25}
+              style={{width: 60}}
+            />
+            blur factor
+          </label>
+          <button onClick={mapColors} disabled={!image || processing}>
+            {processing ? "Processing…" : "Map Colors"}
+          </button>
+        </div>
 
-        <button onClick={mapColors} disabled={!image || processing}>
-          {processing ? "Processing…" : "Map Colors"}
-        </button>
-
-        <label style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-          <input
-            type="checkbox"
-            checked={blur}
-            onChange={(e) => setBlur(e.target.checked)}
-          />
-          blur
-        </label>
-
-        <input
-          type="number"
-          value={blurFactor}
-          onChange={(e) => setBlurFactor(Number(e.target.value))}
-          min={1}
-          max={25}
-          style={{ width: "60px" }}
-        />
-
-        {image && <img src={image} style={{ maxWidth: "100%" }} />}
+        {image && <img src={image} className="preview" />}
       </div>
-      <div className="result">
-        {result && <img src={result} style={{ maxWidth: "100%" }} />}
+
+      <div className="control-panel">
+        <h2>Result</h2>
+        {result && (
+          <>
+            <img src={result} className="preview" />
+
+            <div className="color-select-card">
+              <div style={{display:"flex", gap:"6px", marginBottom:8}}>
+                <button onClick={() => toggleAll(true)}>select all</button>
+                <button onClick={() => toggleAll(false)}>deselect all</button>
+              </div>
+
+              {colors.map((c) => (
+                <label className="color-container" key={c}
+                >
+                  <input
+                    type="checkbox"
+                    checked={colorSelection[c]}
+                    onChange={(e) =>
+                      setColorSelection({ ...colorSelection, [c]: e.target.checked })
+                    }
+                  />
+                  <div style={{ width: 12, height: 12, background: c, border: "1px solid #aaa" }} />
+                  {c}
+                </label>
+              ))}
+
+              <button onClick={exportSelected}>export selected</button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
