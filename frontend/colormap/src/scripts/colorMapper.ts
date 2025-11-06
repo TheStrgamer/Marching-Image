@@ -100,7 +100,7 @@ export class ColorMap {
   /**
    * Get the closest color (by RGB distance) to the given color.
    */
-  getClosestColor(color: Color | string): Color {
+  getClosestColor(color: Color | string, eucli: boolean): Color {
     const target = typeof color === "string" ? new Color(color) : color;
 
     if (this.colors.length === 0) {
@@ -115,7 +115,7 @@ export class ColorMap {
         return c;
       }
 
-      const distance = c.getDistance(target);
+      const distance = c.getDistance(target, eucli);
       if (distance < minDistance) {
         minDistance = distance;
         closest = c;

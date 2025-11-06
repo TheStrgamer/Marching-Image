@@ -117,11 +117,47 @@ export class Color {
     this.setBlue(this.blue - c.blue);
   }
 
-  getDistance(color: Color): number {
-    return Math.sqrt(
-      Math.pow(this.red - color.red, 2) +
-      Math.pow(this.green - color.green, 2) +
-      Math.pow(this.blue - color.blue, 2)
-    );
+  rgb2lab(r: number, g: number, b: number) {
+    let [R, G, B] = [r, g, b].map(v => {
+      v /= 255;
+      return v > 0.04045 ? Math.pow((v + 0.055)/1.055, 2.4) : v / 12.92;
+    });
+
+    const X = R*0.4124 + G*0.3576 + B*0.1805;
+    const Y = R*0.2126 + G*0.7152 + B*0.0722;
+    const Z = R*0.0193 + G*0.1192 + B*0.9505;
+
+    const fx = X / 0.95047;
+    const fy = Y / 1.0;
+    const fz = Z / 1.08883;
+
+    const f = (t: number) => t > 0.008856 ? Math.pow(t, 1/3) : (7.787*t)+16/116;
+
+    const L = 116 * f(fy) - 16;
+    const a = 500 * (f(fx) - f(fy));
+    const bVal = 200 * (f(fy) - f(fz));
+    return [L, a, bVal];
   }
+
+  getDistance(color: Color, eucli: boolean): number {
+    if (eucli) {
+      return Math.sqrt(
+        Math.pow(this.red - color.red, 2) +
+        Math.pow(this.green - color.green, 2) +
+        Math.pow(this.blue - color.blue, 2)
+      );
+    } else {
+      const [L1,a1,b1] = this.rgb2lab(this.red,this.green,this.blue);
+      const [L2,a2,b2] = this.rgb2lab(color.red,color.green,color.blue);
+      return Math.sqrt((L1-L2)**2 + (a1-a2)**2 + (b1-b2)**2);
+    }
+  }
+
+  // getDistance(color: Color): number {
+  //   return Math.sqrt(
+  //     Math.pow(this.red - color.red, 2) +
+  //     Math.pow(this.green - color.green, 2) +
+  //     Math.pow(this.blue - color.blue, 2)
+  //   );
+  // }
 }
