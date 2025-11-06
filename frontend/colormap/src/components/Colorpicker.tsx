@@ -12,8 +12,8 @@ function Colorpicker({ color, onChange, onRemove }: ColorpickerProps) {
         type="color"
         value={color}
         onChange={(e) => onChange(e.target.value)}
+        style={{backgroundColor:"#00000000"}}
       />
-      <div className="color-display" style={{ backgroundColor: color }}></div>
       <button className="removeButton" onClick={onRemove}>
         X
       </button>
