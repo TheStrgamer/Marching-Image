@@ -33,15 +33,22 @@ function MarchSquareDemo() {
   const imageToMatrix = (img: HTMLImageElement, threshold = 240): number[][] => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
-    canvas.width = img.width;
-    canvas.height = img.height;
+    canvas.width = img.width+2;
+    canvas.height = img.height+2;
     ctx.drawImage(img, 0, 0, img.width, img.height);
 
     const { data } = ctx.getImageData(0, 0, img.width, img.height);
 
     const matrix: number[][] = [];
+    
+    const tb_row: number[] = [];
+    for (let x = 0; x < img.width+2; x++) {
+      tb_row.push(0);
+    }
+    matrix.push(tb_row);
     for (let y = 0; y < img.height; y++) {
       const row: number[] = [];
+      row.push(0);
       for (let x = 0; x < img.width; x++) {
         const i = (y * img.width + x) * 4;
         const r = data[i];
@@ -59,8 +66,10 @@ function MarchSquareDemo() {
         const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
         row.push(brightness < threshold ? 1 : 0);
       }
+      row.push(0);
       matrix.push(row);
     }
+    matrix.push(tb_row);
     return matrix;
   };
 

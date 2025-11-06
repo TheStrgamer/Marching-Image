@@ -18,9 +18,10 @@ export class marchingSquares {
     }
 
     vertsFromMatrix(matrix:number[][], width:number, height:number): void {
+        let size = Math.sqrt(width*height)/5;
         for (let i = 0; i<height-1; i++) {
             for (let j = 0; j<width-1; j++) {
-                this.addVertsFromSquare(matrix,j,i)
+                this.addVertsFromSquare(matrix,j,i, size)
             }
         } 
     }
@@ -33,7 +34,7 @@ export class marchingSquares {
         return index;
     }
     
-    addVertsFromSquare(matrix: number[][], startX: number, startY: number) {
+    addVertsFromSquare(matrix: number[][], startX: number, startY: number, size: number) {
     const vx = startX * 2;
     const vy = startY * 2;
     const index = this.indexFromMatrix(matrix, startX, startY);
@@ -45,7 +46,7 @@ export class marchingSquares {
         const y = vy + dy;
         if (!this.verticies[y][x][0]) {
             this.verticies[y][x][0] = new Verticie(x, y, 0);
-            this.verticies[y][x][1] = new Verticie(x, y, 1);
+            this.verticies[y][x][1] = new Verticie(x, y, size);
         }
     }
 }
