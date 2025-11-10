@@ -6,7 +6,7 @@ onmessage = (e) => {
     const ms = new marchingSquares(matrix, matrix[0].length, matrix.length);
     ms.marchingSquares(matrix);
     const stl = ms.export();
-    postMessage({ stl });
+    postMessage({ stl, filename });
   } catch (err) {
     postMessage({ error: (err as Error).message, filename });
   }
