@@ -6,21 +6,25 @@ import { facesToSTL } from "./stlCreator.ts";
 export class marchingSquares {
     verticies: (Verticie | null)[][][];
     faces: Face[];
+    width: number = 0;
+    height: number = 0;
 
     constructor(matrix:number[][], width:number, height:number) {
+        this.width = width;
+        this.height = height;
         this.verticies = Array.from({ length: height*2+1 }, () =>
             Array.from({ length: width*2+1 }, () =>
                 Array(2).fill(null) as (Verticie | null)[]
             )
         );
-        this.vertsFromMatrix(matrix, width, height);
+        this.vertsFromMatrix(matrix);
         this.faces = [];
     }
 
-    vertsFromMatrix(matrix:number[][], width:number, height:number): void {
-        let size = Math.sqrt(width*height)/5;
-        for (let i = 0; i<height-1; i++) {
-            for (let j = 0; j<width-1; j++) {
+    vertsFromMatrix(matrix:number[][]): void {
+        let size = Math.sqrt(this.width*this.height)/5;
+        for (let i = 0; i<this.height-1; i++) {
+            for (let j = 0; j<this.width-1; j++) {
                 this.addVertsFromSquare(matrix,j,i, size)
             }
         } 
@@ -45,8 +49,8 @@ export class marchingSquares {
         const x = vx + dx;
         const y = vy + dy;
         if (!this.verticies[y][x][0]) {
-            this.verticies[y][x][0] = new Verticie(x, y, 0);
-            this.verticies[y][x][1] = new Verticie(x, y, size);
+            this.verticies[y][x][0] = new Verticie(x-this.width, y-this.height, -size/2);
+            this.verticies[y][x][1] = new Verticie(x-this.width, y-this.height, size/2);
         }
     }
 }
