@@ -49,8 +49,8 @@ export class marchingSquares {
         const x = vx + dx;
         const y = vy + dy;
         if (!this.verticies[y][x][0]) {
-            this.verticies[y][x][0] = new Verticie(x-this.width, y-this.height, -size/2);
-            this.verticies[y][x][1] = new Verticie(x-this.width, y-this.height, size/2);
+            this.verticies[y][x][0] = new Verticie(x-this.width+1, y-this.height+1, -size/2);
+            this.verticies[y][x][1] = new Verticie(x-this.width+1, y-this.height+1, size/2);
         }
     }
 }
