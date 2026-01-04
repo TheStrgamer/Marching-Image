@@ -169,7 +169,12 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
     <div className="image-handler">
       <div className="control-panel">
         <h2>Input</h2>
-        <input type="file" accept="image/*" onChange={handleImageChange} />
+        <div className="aligned-items">
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+          <button onClick={mapColors} disabled={!image || processing}>
+            {processing ? "Processing…" : "Map Colors"}
+          </button>
+        </div>
         <div className="aligned-items">
           <label className="inline-check">
             <input
@@ -191,9 +196,17 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
             />
             blur factor
           </label>
-          <button onClick={mapColors} disabled={!image || processing}>
-            {processing ? "Processing…" : "Map Colors"}
-          </button>
+          <label className="inline-check">
+            <input
+              type="number"
+              value={maxSize}
+              onChange={(e) => setMaxSize(Number(e.target.value))}
+              min={0}
+              max={1024}
+              style={{width: 60}}
+            />
+            max size
+          </label>
         </div>
         <div className="aligned-items">
           <label className="inline-check">
@@ -215,19 +228,6 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
               <option value="simple">simple</option>
               <option value="advanced">advanced</option>
             </select>
-          </label>
-        </div>
-        <div className="aligned-items">
-          <label className="inline-check">
-            <input
-              type="number"
-              value={maxSize}
-              onChange={(e) => setMaxSize(Number(e.target.value))}
-              min={0}
-              max={1024}
-              style={{width: 60}}
-            />
-            max image size
           </label>
         </div>
 
