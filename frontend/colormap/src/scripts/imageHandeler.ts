@@ -111,6 +111,8 @@ export class ImageHandler {
     const imgWidth = this.canvas.width;
     const imgHeight = this.canvas.height;
 
+    if (Math.max(imgWidth, imgHeight) < maxSize) return;
+
     const scale = Math.min(maxSize / Math.max(imgWidth, imgHeight), 1);
 
     const width = Math.round(imgWidth * scale);

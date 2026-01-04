@@ -17,7 +17,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-// helper: color match with tolerance
 function colorMatches(r: number, g: number, b: number, hex: string, tol = 10) {
   const tr = parseInt(hex.slice(1, 3), 16);
   const tg = parseInt(hex.slice(3, 5), 16);
@@ -25,7 +24,6 @@ function colorMatches(r: number, g: number, b: number, hex: string, tol = 10) {
   return Math.abs(r - tr) <= tol && Math.abs(g - tg) <= tol && Math.abs(b - tb) <= tol;
 }
 
-// convert image to matrix for a given color
 function imageToMatrixForColor(img: HTMLImageElement, color: string, canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d")!;
   canvas.width = img.width + 2;
@@ -59,6 +57,7 @@ function imageToMatrixForColor(img: HTMLImageElement, color: string, canvas: HTM
 
 function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
   const [image, setImage] = useState<string | null>(null);
+  const [maxSize, setMaxSize] = useState<number | 512>(512);
   const [result, setResult] = useState<string | null>(null);
   const [blur, setBlur] = useState<boolean>(false);
   const [blurFactor, setBlurFactor] = useState<number>(2);
@@ -127,7 +126,7 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
         if (blurMethod == "simple") handler.blurImage(blurFactor);
         else handler.blurImageBilateral(blurFactor)
       }
-      handler.resize(512)
+      handler.resize(maxSize)
 
       handler.mapImage(colorMap, distMethod == "euclidian");
 
@@ -216,6 +215,19 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
               <option value="simple">simple</option>
               <option value="advanced">advanced</option>
             </select>
+          </label>
+        </div>
+        <div className="aligned-items">
+          <label className="inline-check">
+            <input
+              type="number"
+              value={maxSize}
+              onChange={(e) => setMaxSize(Number(e.target.value))}
+              min={0}
+              max={25}
+              style={{width: 60}}
+            />
+            max image size
           </label>
         </div>
 
