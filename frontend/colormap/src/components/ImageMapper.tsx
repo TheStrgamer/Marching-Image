@@ -224,7 +224,7 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
               value={maxSize}
               onChange={(e) => setMaxSize(Number(e.target.value))}
               min={0}
-              max={25}
+              max={1024}
               style={{width: 60}}
             />
             max image size
