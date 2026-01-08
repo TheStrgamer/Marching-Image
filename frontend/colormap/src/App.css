@@ -41,10 +41,12 @@
   flex-wrap: wrap;
   flex-direction: column;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.5rem;
   margin-top: 2rem;
   width: 125px;
   flex: 1;
+  background-color: #2b2b2b;
+  border-radius: 15px;
 }
 
 .colorpicker-list button {
@@ -64,8 +66,10 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 125px;
+  width: 100%;
   height: 50px;
+  margin-left: 15px;
+  margin-top: 10px;
 }
 
 
@@ -73,7 +77,8 @@
   width: 75px;
   height: 50px;
   cursor: pointer;
-  border: none
+  border: none;
+  box-shadow: none;
 }
 
 .colorpicker button {
@@ -86,3 +91,124 @@
   height:25px;
 }
 
+.image-handler {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  width: 75%;
+
+}
+
+.control-panel {
+  min-width: 200px;
+  flex:1;
+  background: #2b2b2b;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #2d2d2d;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 200px;
+}
+
+.aligned-items {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+button {
+  cursor: pointer;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  background: #0099c8;
+  color: white;
+  transition: background .2s;
+}
+
+button:hover:not(:disabled) {
+  background: #00a0cc;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inline-check {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.preview {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid #272727;
+}
+
+.color-select-card {
+  padding: 12px;
+  border-radius: 10px;
+  width: 200px;
+}
+
+.color-container {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.side-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+
+.side-switch span {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.4;
+  transition: opacity 0.15s ease;
+}
+
+.side-switch span.active {
+  opacity: 1;
+}
+
+.switch {
+  width: 56px;
+  height: 28px;
+  background: #2a2a2a;
+  border-radius: 999px;
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+  position: relative;
+}
+
+.thumb {
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.switch.left .thumb {
+  transform: translateX(0);
+}
+
+.switch.right .thumb {
+  transform: translateX(28px);
+}

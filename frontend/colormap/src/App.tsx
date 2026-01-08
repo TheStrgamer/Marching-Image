@@ -1,74 +1,57 @@
-import './App.css'
-import ImageUpload from './components/ImageUpload'
-import ColorpickerList from './components/ColorpickerList'
-import { useState } from 'react';
-
-
-
-
+import "./App.css";
+import ImageMapper from "./components/ImageMapper";
+import ServerImageMapper from "./components/ServerImageMapper";
+import ColorpickerList from "./components/ColorpickerList";
+import { use, useState } from "react";
 function App() {
+  const [image, setImage] = useState<string | null>(null);
+  const [colors, setColors] = useState(["#FF0000", "#FFFFFF"]);
+  const [resultImage, setResultImage] = useState<string | null>(null);
 
-    const [image, setImage] = useState<string | null>(null)
-    const [colors, setColors] = useState(['#FF0000', '#FFFFFF']);
-    const [resultImage, setResultImage] = useState<string | null>(null);
-
-  const requestMapping = async () => {
-      if (!image) {
-        console.warn("No image provided.");
-        return;
-      }
-      console.log("Requesting color mapping with image and colors:", colors);
-
-      try {
-        const response = await fetch("http://localhost:8080/api/color_map", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            image: image.split(',')[1],
-            colors: colors
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.image) {
-          setResultImage(`data:image/jpeg;base64,${data.image}`);
-        } else {
-          console.log("Success:", data);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-    
+  const [clientOnly, setClientOnly] = useState<boolean>(true);
 
   return (
     <>
-        <h1>Upload image to map it</h1>
-        <div className="content">
-          <div>
+      <h1>
+        Upload image to map{" "}
+        <span>
+          ({clientOnly ? "client-side" : "server-side"})
+        </span>
+      </h1>
+
+      <div className="side-switch">
+        <span className={!clientOnly ? "inactive" : "active"}>Client side</span>
+
+        <button
+          className={`switch ${clientOnly ? "left" : "right"}`}
+          onClick={() => setClientOnly(!clientOnly)}
+          aria-label="Toggle client or server side"
+        >
+          <span className="thumb" />
+        </button>
+
+        <span className={clientOnly ? "inactive" : "active"}>Server side</span>
+      </div>   
+      <div className="content">
+        <div>
           <h2>Colors</h2>
           <ColorpickerList setColorList={setColors} />
-          </div>
-          <ImageUpload setImageParent={setImage} />
-          <div>
-            <button onClick={requestMapping} disabled={!image}>
-              Map Colors
-            </button>
-
-            {resultImage && (
-              <div className="result">
-                <h2>Result</h2>
-                <img src={resultImage} alt="Mapped result" />
-              </div>
-            )}
-          </div>
-
-        </div>        
+        </div>
+        {!clientOnly && (
+          <ServerImageMapper
+            setImageParent={setImage}
+            colors={colors}
+            setResultImage={setResultImage}
+        />)}
+        {clientOnly && (
+          <ImageMapper 
+            setImageParent={setImage} 
+            colors={colors} 
+            setResultImage={setResultImage}
+        />)}
+        </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

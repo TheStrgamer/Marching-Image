@@ -33,6 +33,7 @@ class ImageHandler {
     void mapImage(ColorMap &colorMap, const std::string &path);
     void blurImage(int kernelSize);
     void removeIslands(int islandSize);
+    Mat getImage() const { return outputImage; }
 
   private:
     Mat image;
