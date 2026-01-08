@@ -168,3 +168,47 @@ button:disabled {
   margin: 4px 0;
 }
 
+.side-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+
+.side-switch span {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.4;
+  transition: opacity 0.15s ease;
+}
+
+.side-switch span.active {
+  opacity: 1;
+}
+
+.switch {
+  width: 56px;
+  height: 28px;
+  background: #2a2a2a;
+  border-radius: 999px;
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+  position: relative;
+}
+
+.thumb {
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.switch.left .thumb {
+  transform: translateX(0);
+}
+
+.switch.right .thumb {
+  transform: translateX(28px);
+}

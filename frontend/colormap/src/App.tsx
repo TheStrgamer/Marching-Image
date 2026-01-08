@@ -1,5 +1,6 @@
 import "./App.css";
 import ImageMapper from "./components/ImageMapper";
+import ServerImageMapper from "./components/ServerImageMapper";
 import ColorpickerList from "./components/ColorpickerList";
 import { use, useState } from "react";
 function App() {
@@ -11,23 +12,43 @@ function App() {
 
   return (
     <>
-      <h1>Upload image to map it {clientOnly && <span> (client-side)</span>}{!clientOnly && <span> (server-side)</span>}</h1>
-      <label className="inline-check">
-        <input
-        type="checkbox"
-            checked={clientOnly}
-            onChange={(e) => setClientOnly(e.target.checked)}
-            style={{width: 12}}
-          />
-          client side
-      </label>      
-        <div className="content">
+      <h1>
+        Upload image to map{" "}
+        <span>
+          ({clientOnly ? "client-side" : "server-side"})
+        </span>
+      </h1>
+
+      <div className="side-switch">
+        <span className={!clientOnly ? "inactive" : "active"}>Client side</span>
+
+        <button
+          className={`switch ${clientOnly ? "left" : "right"}`}
+          onClick={() => setClientOnly(!clientOnly)}
+          aria-label="Toggle client or server side"
+        >
+          <span className="thumb" />
+        </button>
+
+        <span className={clientOnly ? "inactive" : "active"}>Server side</span>
+      </div>   
+      <div className="content">
         <div>
           <h2>Colors</h2>
           <ColorpickerList setColorList={setColors} />
         </div>
-        {!clientOnly && <h2>Not fully finished yet</h2>}
-        {clientOnly && <ImageMapper setImageParent={setImage} colors={colors} setResultImage={setResultImage}/>}
+        {!clientOnly && (
+          <ServerImageMapper
+            setImageParent={setImage}
+            colors={colors}
+            setResultImage={setResultImage}
+        />)}
+        {clientOnly && (
+          <ImageMapper 
+            setImageParent={setImage} 
+            colors={colors} 
+            setResultImage={setResultImage}
+        />)}
         </div>
     </>
   );
