@@ -61,25 +61,31 @@ https://en.wikipedia.org/wiki/Marching_squares
 
 ## Example with c++ logo
 The logo mapped in the application
+
 ![cpp_logo](readme_images/cpp_image.png)
 
 The resulting model in blender
+
 ![cpp_logo_model](readme_images/cpp_model.png)
 
 ## Example with smaller shape
 The shape mapped in the application
+
 ![cpp_logo](readme_images/shape_image.png)
 
 The resulting model in blender
+
 ![cpp_logo_model](readme_images/shape_model.png)
 
 
 ## Example of more complex image
 For more complex images, more colors might be needed to make it look good
 Here is an example with an image of me.
+
 ![cpp_logo](readme_images/me_image.png)
 
 The resulting model in blender, with colors
+
 ![cpp_logo_model](readme_images/me_model.png)
 
 
