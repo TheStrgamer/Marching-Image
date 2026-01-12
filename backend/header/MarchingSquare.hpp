@@ -88,9 +88,9 @@ const vector<vector<vector<Tri>>> sideFaceLookup = {
 
 class MarchingSquare{
     public:
-    MarchingSquare();
+    MarchingSquare(Matrix matrix, int w, int h);
     void marchSquares();
-    void exportMesh(string filename);
+    void exportMesh(string &filename);
 
     private:
     int width;
@@ -98,10 +98,12 @@ class MarchingSquare{
     Matrix m;
     Mesh mesh;
 
+    vector<vector<vector<int>>> vertRef;
+
     int indexFromMatrix(int startX, int startY);
     void vertsFromMatrix();
 
-    void addVertsFromSquare(int startX, int startY);
+    void addVertsFromSquare(int startX, int startY, float size);
     void marchSquare(int startX, int startY);
 
 
