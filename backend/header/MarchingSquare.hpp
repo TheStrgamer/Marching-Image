@@ -86,6 +86,11 @@ const vector<vector<vector<Tri>>> sideFaceLookup = {
     {} // 1111
 };
 
+/**
+ * @brief A class that uses marching squares to make a mesh
+ * A class hat takes a matrix with 0s and 1s, and uses marching squares 
+ * to make a mesh based on the matrix values.
+ */
 class MarchingSquare{
     public:
     MarchingSquare(Matrix matrix, int w, int h);

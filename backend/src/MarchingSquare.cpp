@@ -1,6 +1,8 @@
 #include "../header/MarchingSquare.hpp"
 
-
+/**
+ * @brief The constructor of the marching square
+ */
 MarchingSquare::MarchingSquare(Matrix matrix, int w, int h) {
     m = matrix;
     width = w;
@@ -8,6 +10,12 @@ MarchingSquare::MarchingSquare(Matrix matrix, int w, int h) {
     vertsFromMatrix();
 }
 
+/**
+ * @brief gets the index to use for lookup
+ * @param startX the x value of the top left corner
+ * @param startY the y value of the top left corner
+ * @return the index to use
+ */
 int MarchingSquare::indexFromMatrix(int startX, int startY){
     int index = m[startY][startX] == 1;
     index += (m[startY][startX+1] == 1)*2;
@@ -16,6 +24,12 @@ int MarchingSquare::indexFromMatrix(int startX, int startY){
     return index;
 }
 
+/**
+ * @brief adds verticies from a square
+ * @param startX the x value of the top left corner
+ * @param startY the y value of the top left corner
+ * @param size the thickness of the model
+ */
 void MarchingSquare::addVertsFromSquare(int startX, int startY, float size){
     const int vx = startX * 2;
     const int vy = startY * 2;
@@ -34,6 +48,9 @@ void MarchingSquare::addVertsFromSquare(int startX, int startY, float size){
     }
 }
 
+/**
+ * @brief adds verts for all squares in the matrix
+ */
 void MarchingSquare::vertsFromMatrix(){
     float size = (sqrt(width*height))/5;
     int gridWidth  = width * 2;
@@ -55,6 +72,11 @@ void MarchingSquare::vertsFromMatrix(){
     } 
 }
 
+/**
+ * @brief marches the square starting in startX and startY
+ * @param startX the x value of the top left corner
+ * @param startY the y value of the top left corner
+ */
 void MarchingSquare::marchSquare(int startX, int startY){
     int index = indexFromMatrix(startX,startY);
     const int baseX = startX * 2;
@@ -135,6 +157,9 @@ void MarchingSquare::marchSquare(int startX, int startY){
     }
 }
 
+/**
+ * @brief marches all squares in the matrix
+ */
 void MarchingSquare::marchSquares() {
     for (int i = 0; i < m.size()-1; i++) {
         for (int j = 0; i < m[0].size()-1; j++) {
@@ -144,6 +169,9 @@ void MarchingSquare::marchSquares() {
 
 }
 
+/**
+ * @brief exports the mesh
+ */
 void MarchingSquare::exportMesh(string &filename){
     mesh.exportSTL(filename);
 
