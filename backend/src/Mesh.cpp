@@ -2,25 +2,47 @@
 #include <cmath>
 #include <iostream>
 
+/**
+ * The constructor of the mesh class
+ */
 Mesh::Mesh() {
     vertices.clear();
     faces.clear();
 }
 
+/**
+ * @brief Add vertex to mesh
+ * @param x the x coordinate
+ * @param y the y coordinate
+ * @param z the z coordinate
+ * @return The index of the vertex
+ */
 int Mesh::addVertex(float x, float y, float z) {
     vertices.emplace_back(x, y, z);
     return static_cast<int>(vertices.size() - 1);
 }
 
+/**
+ * @brief Add face to mesh
+ * @param v1 the index of the first vertex
+ * @param v2 the index of the second vertex
+ * @param v3 the index of the third vertex
+ */
 void Mesh::addFace(int v1, int v2, int v3) {
     faces.emplace_back(v1, v2, v3);
 }
 
+/**
+ * @brief Clears faces and verticies
+*/
 void Mesh::clear() {
     vertices.clear();
     faces.clear();
 }
 
+/**
+ * @brief Computes the normals of the face based on vertex coordinates
+*/
 Vertex Mesh::computeNormal(const Face& f) {
     const Vertex& a = vertices[f.v1];
     const Vertex& b = vertices[f.v2];
@@ -44,6 +66,11 @@ Vertex Mesh::computeNormal(const Face& f) {
     return Vertex(nx/length, ny/length, nz/length);
 }
 
+/**
+ * @brief Exports the mesh as an stl file
+ * @param filename the name of the exported file
+ * @return true if saved succesfully, false otherwise
+*/
 bool Mesh::exportSTL(const std::string& filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
