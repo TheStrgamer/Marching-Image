@@ -2,8 +2,6 @@
 #include <vector>
 #include "../header/Server.hpp"
 #include <iostream>
-
-
 #include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 #include "../header/Color.hpp"
