@@ -7,6 +7,8 @@
 #include "../header/Color.hpp"
 #include "../header/ColorMap.hpp"
 #include "../header/ImageHandler.hpp"
+#include "../header/Mesh.hpp"
+#include "../header/MarchingSquare.hpp"
 
 
 Server::Server(int port) : port(port), running(false) {
@@ -134,14 +136,82 @@ void Server::stop() {
 }
 
 /**
+ * @brief processes an image and marches it with all given colors
+ * Returns the generated models
+ * 
+ * @param colors the colors from the request
+ * @param image the image to process
+ * @return the models generated
+ */
+std::vector<std::pair<std::string, std::string>> processImage(const std::vector<std::string> &colors, const cv::Mat &image) {
+    ImageHandler imageHandler = ImageHandler();
+    ColorMap colorMap = ColorMap(colors);
+    std::string outputFolder = "/app/output/";
+
+    imageHandler.setImage(image);
+    int w = image.cols;
+    int h = image.rows;
+
+    std::vector<std::pair<std::string, std::string>> models;
+
+    for (const Color& color : colorMap.getColors()) {
+        Matrix m = imageHandler.getImageAsMatrix(color);
+
+        MarchingSquare ms(m, w, h);
+        ms.marchSquares();
+
+        std::string stl = ms.getMesh().exportSTLToString();
+        std::string encoded = base64_encode(
+            reinterpret_cast<const unsigned char*>(stl.data()),
+            stl.size()
+        );
+
+        models.emplace_back(color.getHex(), encoded);
+    }
+
+    return models;
+}
+
+/**
  * @brief handles an image processing request
  * Processes an image processing request. The processing will turn the images into 3d models.
  * @param request The request to handle.
  * @return The response to the request.
  */
-crow::response Server::handleImageProcessingRequest(const std::string &request) {
-    return crow::response(200, "Success"); //TODO actually make this work
+crow::response Server::handleImageProcessingRequest(const std::string& body) {
+    using json = nlohmann::json;
+
+    try {
+        auto parsed = json::parse(body);
+
+        std::string base64_img = parsed["image"];
+        std::vector<uchar> raw = base64_decode(base64_img);
+
+        cv::Mat image = cv::imdecode(raw, cv::IMREAD_COLOR);
+        if (image.empty()) {
+            return crow::response(400, "Invalid image");
+        }
+        std::vector<std::string> colors =
+            parsed.value("colors", std::vector<std::string>{});
+
+        auto models = processImage(colors, image);
+        json response;
+        response["models"] = json::array();
+
+        for (const auto& [color, stl_base64] : models) {
+            response["models"].push_back({
+                {"color", color},
+                {"stl", stl_base64}
+            });
+        }
+
+        return crow::response(200, response.dump());
+
+    } catch (const std::exception& e) {
+        return crow::response(400, std::string("Bad request: ") + e.what());
+    }
 }
+
 
 cv::Mat mapColors(const std::vector<std::string> &colors, const cv::Mat &image) {
     ImageHandler imageHandler = ImageHandler();
