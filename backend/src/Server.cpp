@@ -14,6 +14,11 @@ Server::Server(int port) : port(port), running(false) {
 }
 
 
+const std::string base64_chars =
+             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+             "abcdefghijklmnopqrstuvwxyz"
+             "0123456789+/";
+
 /**
  * @brief Decodes a Base64 encoded string
  * Decodes a Base64 encoded string into a vector of unsigned characters. Used for decoding image data in requests.
@@ -21,7 +26,6 @@ Server::Server(int port) : port(port), running(false) {
  * @return A vector of unsigned characters representing the decoded data.
  */
 static inline std::vector<uchar> base64_decode(const std::string &in) {
-    std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     std::vector<int> T(256, -1);
     for (int i = 0; i < 64; i++) T[base64_chars[i]] = i;
 
@@ -38,6 +42,53 @@ static inline std::vector<uchar> base64_decode(const std::string &in) {
     }
     return out;
 }
+
+/**
+ * @brief encodes bytes to a base64 string
+ * @param bytes_to_encode the bytes that are encoded
+ * @param in_len the length
+ * @return the base64 string
+ */
+std::string base64_encode(const unsigned char* bytes_to_encode, unsigned int in_len) {
+    std::string ret;
+    int i = 0;
+    int j = 0;
+    unsigned char char_array_3[3];
+    unsigned char char_array_4[4];
+
+    while (in_len--) {
+        char_array_3[i++] = *(bytes_to_encode++);
+        if (i == 3) {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for (i = 0; i < 4; i++)
+                ret += base64_chars[char_array_4[i]];
+            i = 0;
+        }
+    }
+
+    if (i) {
+        for (j = i; j < 3; j++)
+            char_array_3[j] = '\0';
+
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+
+        for (j = 0; j < i + 1; j++)
+            ret += base64_chars[char_array_4[j]];
+
+        while (i++ < 3)
+            ret += '=';
+    }
+
+    return ret;
+}
+
 
 /**
   * @brief Starts the server
@@ -105,14 +156,14 @@ cv::Mat mapColors(const std::vector<std::string> &colors, const cv::Mat &image) 
     imageHandler.setImage(image);
     imageHandler.mapImage(colorMap);
     imageHandler.saveImage(outputFolder + "mapped_image.jpg");
-    for (int i = 4; i < 5; i++) {
-        imageHandler.blurImage(i * 12 + 1);
-        imageHandler.mapImage(colorMap);
+    // for (int i = 4; i < 5; i++) {
+    //     imageHandler.blurImage(i * 12 + 1);
+    //     imageHandler.mapImage(colorMap);
 
-        std::string outputFileName = outputFolder + "b_" + std::to_string(i) + "mapped_image.png";
-        imageHandler.saveImage(outputFileName);
-        std::cout << "Saved " << outputFileName << std::endl;
-    }
+    //     std::string outputFileName = outputFolder + "b_" + std::to_string(i) + "mapped_image.png";
+    //     imageHandler.saveImage(outputFileName);
+    //     std::cout << "Saved " << outputFileName << std::endl;
+    // }
     return imageHandler.getImage();
 }
 /**
@@ -140,53 +191,7 @@ crow::response Server::handleColorMapRequest(const std::string& body) {
         // Encode processed image to PNG in-memory
         std::vector<uchar> buf;
         cv::imencode(".png", processed, buf);
-
-        // Base64 encode the buffer
-        static const std::string base64_chars = 
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz"
-            "0123456789+/";
-
-        auto base64_encode = [](const unsigned char* bytes_to_encode, unsigned int in_len) -> std::string {
-            std::string ret;
-            int i = 0;
-            int j = 0;
-            unsigned char char_array_3[3];
-            unsigned char char_array_4[4];
-
-            while (in_len--) {
-                char_array_3[i++] = *(bytes_to_encode++);
-                if (i == 3) {
-                    char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-                    char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-                    char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-                    char_array_4[3] = char_array_3[2] & 0x3f;
-
-                    for(i = 0; (i <4) ; i++)
-                        ret += base64_chars[char_array_4[i]];
-                    i = 0;
-                }
-            }
-
-            if (i)
-            {
-                for(j = i; j < 3; j++)
-                    char_array_3[j] = '\0';
-
-                char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-                char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-                char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-                char_array_4[3] = char_array_3[2] & 0x3f;
-
-                for (j = 0; (j < i + 1); j++)
-                    ret += base64_chars[char_array_4[j]];
-
-                while((i++ < 3))
-                    ret += '=';
-            }
-
-            return ret;
-        };
+        
 
         std::string encoded_img = base64_encode(buf.data(), buf.size());
 
