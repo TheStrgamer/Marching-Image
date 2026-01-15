@@ -5,6 +5,9 @@
 #include "ColorMap.hpp"
 
 using namespace cv;
+
+using Matrix = vector<vector<int>>;
+
 /**
  * @brief Convert a color to a pixel
  * @param color The color to convert
@@ -34,6 +37,8 @@ class ImageHandler {
     void blurImage(int kernelSize);
     void removeIslands(int islandSize);
     Mat getImage() const { return outputImage; }
+    Matrix getImageAsMatrix(Color &color)
+
 
   private:
     Mat image;

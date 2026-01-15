@@ -183,3 +183,29 @@ void ImageHandler::removeIslands(int islandSize) {
     }
 }
 
+/**
+ * @brief returns a matrix representation of the image given a color
+ * The values are 0 if the color of a pixel does not match with the given color
+ * and 1 if the color matches.
+ * 
+ * @param color the color to match with
+ * @return the matrix
+ */
+Matrix ImageHandler::getImageAsMatrix(Color &color) {
+    Matrix m(image.rows, std::vector<int>(image.cols, 0));
+
+    cv::parallel_for_(cv::Range(0, image.rows),
+        [&](const cv::Range& range) {
+            for (int i = range.start; i < range.end; ++i) {
+                const cv::Vec3b* rowPtr = image.ptr<cv::Vec3b>(i);
+                for (int j = 0; j < image.cols; ++j) {
+                    Color c = pixelToColor(rowPtr[j]);
+                    m[i][j] = (c == color) ? 1 : 0;
+                }
+            }
+        }
+    );
+
+    return m;
+}
+
