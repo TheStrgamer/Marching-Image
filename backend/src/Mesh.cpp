@@ -98,3 +98,29 @@ bool Mesh::exportSTL(const std::string& filename) {
     file.close();
     return true;
 }
+
+/**
+ * @brief returns a string representation of the mesh
+ * @return the string representation of the mesh
+ */
+std::string Mesh::toString() {
+    std::ostringstream ss;
+    ss << "solid mesh\n";
+
+    for (const auto& f : faces) {
+        Vertex normal = computeNormal(f);
+        ss << "  facet normal " << normal.x << " " << normal.y << " " << normal.z << "\n";
+        ss << "    outer loop\n";
+        const Vertex& v1 = vertices[f.v1];
+        const Vertex& v2 = vertices[f.v2];
+        const Vertex& v3 = vertices[f.v3];
+        ss << "      vertex " << v1.x << " " << v1.y << " " << v1.z << "\n";
+        ss << "      vertex " << v2.x << " " << v2.y << " " << v2.z << "\n";
+        ss << "      vertex " << v3.x << " " << v3.y << " " << v3.z << "\n";
+        ss << "    endloop\n";
+        ss << "  endfacet\n";
+    }
+
+    ss << "endsolid mesh\n";
+    return ss.str();
+}

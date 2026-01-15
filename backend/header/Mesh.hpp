@@ -35,6 +35,7 @@ public:
     void addFace(int v1, int v2, int v3);
     void clear();
     bool exportSTL(const std::string& filename);
+    std::string toString();
 
     const std::vector<Vertex>& getVertices() const { return vertices; }
     const std::vector<Face>& getFaces() const { return faces; }

@@ -171,8 +171,17 @@ void MarchingSquare::marchSquares() {
 
 /**
  * @brief exports the mesh
+ * @param filename the filname to export stl as
  */
 void MarchingSquare::exportMesh(string &filename){
     mesh.exportSTL(filename);
 
+}
+
+/**
+ * @brief gets the mesh as a stirng
+ * @return the mesh as a string
+ */
+string MarchingSquare::getMeshString() {
+    return mesh.toString();
 }

@@ -96,6 +96,7 @@ class MarchingSquare{
     MarchingSquare(Matrix matrix, int w, int h);
     void marchSquares();
     void exportMesh(string &filename);
+    string getMeshString();
 
     private:
     int width;
