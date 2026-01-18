@@ -2,14 +2,10 @@ import { useEffect, useState } from "react";
 import "../App.css";
 
 type Props = {
-  setImageParent: (image: string | null) => void;
-  setResultImage: (img: string | null) => void;
   colors: string[];
 };
 
 export default function ServerImageMapper({
-  setImageParent,
-  setResultImage,
   colors,
 }: Props) {
   const [image, setImage] = useState<string | null>(null);
@@ -19,6 +15,10 @@ export default function ServerImageMapper({
   const [colorSelection, setColorSelection] = useState<Record<string, boolean>>(
     {}
   );
+  const [maxSize, setMaxSize] = useState<number | 512>(512);
+  const [blur, setBlur] = useState<boolean>(false);
+  const [blurFactor, setBlurFactor] = useState<number>(2);
+  const [method, setMethod] = useState<string>("rgb2lab")
 
   /* is server alive? */
   useEffect(() => {
@@ -41,7 +41,6 @@ export default function ServerImageMapper({
     reader.onloadend = () => {
       const b64 = reader.result as string;
       setImage(b64);
-      setImageParent(b64);
     };
     reader.readAsDataURL(file);
   };
@@ -57,6 +56,10 @@ export default function ServerImageMapper({
         body: JSON.stringify({
           image: image.split(",")[1],
           colors,
+          blur, 
+          blurFactor,
+          maxSize,
+          method
         }),
       });
 
@@ -64,7 +67,6 @@ export default function ServerImageMapper({
       if (data.image) {
         const out = `data:image/jpeg;base64,${data.image}`;
         setResult(out);
-        setResultImage(out);
       }
     } catch (err) {
       console.error("Server mapping failed:", err);
@@ -73,14 +75,20 @@ export default function ServerImageMapper({
     }
   };
 
-  const exportSelected = async () => {
-    if (!result) return;
+const exportSelected = async () => {
+  if (!result) return;
 
-    const selectedColors = Object.entries(colorSelection)
-      .filter(([, v]) => v)
-      .map(([k]) => k);
+  const selectedColors = Object.entries(colorSelection)
+    .filter(([, v]) => v)
+    .map(([k]) => k);
 
-    await fetch("http://localhost:8080/api/export", {
+  if (selectedColors.length === 0) {
+    alert("No colors selected");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:8080/api/image_processing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -89,8 +97,41 @@ export default function ServerImageMapper({
       }),
     });
 
-    console.log("Export request sent");
-  };
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
+
+    const data = await res.json();
+
+    // Expecting: { models: [{ color, stl }] }
+    for (const model of data.models) {
+      const binary = atob(model.stl);
+      const bytes = new Uint8Array(binary.length);
+
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+
+      const blob = new Blob([bytes], { type: "application/sla" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `model-${model.color}.stl`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    console.log("Export completed");
+
+  } catch (err) {
+    console.error("Export failed:", err);
+    alert("Export failed. See console.");
+  }
+};
+
 
   const toggleAll = (checked: boolean) => {
     const obj: Record<string, boolean> = {};
@@ -119,6 +160,51 @@ export default function ServerImageMapper({
           >
             {processing ? "Processing…" : "Map Colors (Server)"}
           </button>
+        </div>
+        <div className="aligned-items">
+          <label className="inline-check">
+            <input
+              type="checkbox"
+              checked={blur}
+              onChange={(e) => setBlur(e.target.checked)}
+              style={{width: 12}}
+            />
+            blur
+          </label>
+          <label className="inline-check">
+            <input
+              type="number"
+              value={blurFactor}
+              onChange={(e) => setBlurFactor(Number(e.target.value))}
+              min={0}
+              max={25}
+              style={{width: 60}}
+            />
+            blur factor
+          </label>
+          <label className="inline-check">
+            <input
+              type="number"
+              value={maxSize}
+              onChange={(e) => setMaxSize(Number(e.target.value))}
+              min={0}
+              max={1024*4}
+              style={{width: 60}}
+            />
+            max size
+          </label>
+        </div>
+        <div className="aligned-items">
+          <label className="inline-check">
+            distance method
+            <select
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+            >
+              <option value="HSL">hsl</option>
+              <option value="Euclidian">euclidian</option>
+            </select>
+          </label>
         </div>
 
         {image && <img src={image} className="preview" />}

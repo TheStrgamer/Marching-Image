@@ -2,11 +2,9 @@ import "./App.css";
 import ImageMapper from "./components/ImageMapper";
 import ServerImageMapper from "./components/ServerImageMapper";
 import ColorpickerList from "./components/ColorpickerList";
-import { use, useState } from "react";
+import { useState } from "react";
 function App() {
-  const [image, setImage] = useState<string | null>(null);
   const [colors, setColors] = useState(["#FF0000", "#FFFFFF"]);
-  const [resultImage, setResultImage] = useState<string | null>(null);
 
   const [clientOnly, setClientOnly] = useState<boolean>(true);
 
@@ -39,15 +37,11 @@ function App() {
         </div>
         {!clientOnly && (
           <ServerImageMapper
-            setImageParent={setImage}
             colors={colors}
-            setResultImage={setResultImage}
         />)}
         {clientOnly && (
           <ImageMapper 
-            setImageParent={setImage} 
             colors={colors} 
-            setResultImage={setResultImage}
         />)}
         </div>
     </>

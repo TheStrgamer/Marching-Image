@@ -4,8 +4,6 @@ import { ColorMap } from "../scripts/colorMapper";
 import { ImageHandler } from "../scripts/imageHandeler";
 
 type Props = {
-  setImageParent: (image: string | null) => void;
-  setResultImage: (img: string | null) => void;
   colors: string[];
 };
 
@@ -55,7 +53,7 @@ function imageToMatrixForColor(img: HTMLImageElement, color: string, canvas: HTM
   return matrix;
 }
 
-function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
+function ImageMapper({ colors }: Props) {
   const [image, setImage] = useState<string | null>(null);
   const [maxSize, setMaxSize] = useState<number | 512>(512);
   const [result, setResult] = useState<string | null>(null);
@@ -132,7 +130,6 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
 
       const out = handler.getDataURL();
       setResult(out);
-      setResultImage(out);
 
     } catch (e) {
       console.error(e);
@@ -148,7 +145,6 @@ function ImageMapper({ setImageParent, setResultImage, colors }: Props) {
     reader.onloadend = () => {
       const b64 = reader.result as string;
       setImage(b64);
-      setImageParent(b64);
     };
     reader.readAsDataURL(file);
   };
