@@ -211,3 +211,81 @@ Color::Color() {
     return std::sqrt(std::pow(red - color.red, 2) + std::pow(green - color.green, 2) + std::pow(blue - color.blue, 2));
     //return std::sqrt(std::pow(red - color.red, 2) + std::pow(green - color.green, 2) + std::pow(blue - color.blue, 2));
   }
+
+  /**
+   * @brief Get the distance to another color
+   * Calculates the distance to another color.
+   * @param color The other color
+   * @return The distance
+   */
+  int Color::getDistance(const std::string &color) const {
+    Color c(color);
+    return getDistance(c);
+  }
+      
+  /**
+   * @brief Returns the Hsl representation of the rgb color
+   * @return the HSL color
+   */
+  HSL Color::rgbToHsl() const {
+      double rd = red / 255.0;
+      double gd = green / 255.0;
+      double bd = blue / 255.0;
+
+      double max = std::max({rd, gd, bd});
+      double min = std::min({rd, gd, bd});
+      double delta = max - min;
+
+      HSL hsl;
+      hsl.l = (max + min) / 2.0;
+
+      if (delta == 0.0) {
+          hsl.h = 0.0;
+          hsl.s = 0.0;
+      } else {
+          hsl.s = delta / (1.0 - std::abs(2.0 * hsl.l - 1.0));
+
+          if (max == rd)
+              hsl.h = 60.0 * std::fmod(((gd - bd) / delta), 6.0);
+          else if (max == gd)
+              hsl.h = 60.0 * (((bd - rd) / delta) + 2.0);
+          else
+              hsl.h = 60.0 * (((rd - gd) / delta) + 4.0);
+
+          if (hsl.h < 0.0)
+              hsl.h += 360.0;
+      }
+
+      return hsl;
+  }
+
+  /**
+   * @brief Function that calculates color closeness in hsl to be more accurate to how it looks
+   * @param color the color to compare to this color
+   * @return the distance
+   */
+  int Color::getHslDistance(const Color &color) const{
+    const HSL& a = rgbToHsl();
+    const HSL& b = color.rgbToHsl();
+    double dh = std::abs(a.h - b.h);
+    dh = std::min(dh, 360.0 - dh) / 180.0;
+
+    double ds = std::abs(a.s - b.s);
+    double dl = std::abs(a.l - b.l);
+
+    return std::sqrt(
+        4.0 * dh * dh +
+        1.5 * ds * ds +
+        1.0 * dl * dl
+    );
+  }
+
+    /**
+   * @brief Function that calculates color closeness in hsl to be more accurate to how it looks
+   * @param color the string color to compare to this color
+   * @return the distance
+   */
+  int Color::getHslDistance(const std::string &color) const{
+    Color c(color);
+    return getHslDistance(c);
+  }

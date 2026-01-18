@@ -1,5 +1,15 @@
 #pragma once
 #include <string>
+#include <algorithm>
+
+  /**
+   * @brief HSL representation of a color
+   */
+  struct HSL {
+    double h;
+    double s;
+    double l;
+};
 
 /**
  * @brief Convert a number to a hexadecimal string
@@ -48,7 +58,9 @@ class Color {
   void subtractColor(const std::string &color);
   int getDistance(const Color &color) const;
   int getDistance(const std::string &color) const;
-
+  int getHslDistance(const Color &color) const;
+  int getHslDistance(const std::string &color) const;
+  
   int operator==(const Color &color) const {
     return red == color.red && green == color.green && blue == color.blue;
   }
@@ -64,10 +76,12 @@ class Color {
   void operator-=(const Color &color) {
     subtractColor(color);
   }
-
+  
   private:
   int red;
   int green;
   int blue;
   std::string hex;
+
+  HSL rgbToHsl() const;
 };

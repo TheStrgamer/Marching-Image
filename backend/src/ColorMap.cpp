@@ -37,7 +37,7 @@ ColorMap::ColorMap(const std::vector<Color>& colors) {
  * @brief Get the list of colors
  * @return The list of colors
  */
-std::vector<Color> ColorMap::getColors() const {
+const std::vector<Color>& ColorMap::getColors() const {
   return colors;
 }
 
@@ -115,16 +115,19 @@ void ColorMap::clear() {
 /**
  * @brief Get the closest color to the given color
  * @param color The color to compare
+ * @param hsl if the method should use hsl or rgb distance method
  * @return The closest color
  */
-Color ColorMap::getClosestColor(const Color& color) const {
+Color ColorMap::getClosestColor(const Color& color, bool hsl) const {
   int minDistance = 1000000;
   Color col = colors.at(0);
   for (const auto &c : colors) {
     if (c.getHex() == color.getHex()) {
       return c;
     }
-    int distance = c.getDistance(color);
+    int distance = 1000000;
+    if (hsl) distance = c.getHslDistance(color);
+    else distance = c.getDistance(color);
     if (distance < minDistance) {
       minDistance = distance;
       col = c;
@@ -141,11 +144,30 @@ Color ColorMap::getClosestColor(const Color& color) const {
 /**
  * @brief Get the closest color to the given color
  * @param color The color to compare
+ * @param hsl if the method should use hsl or rgb distance method
+ * @return The closest color
+ */
+Color ColorMap::getClosestColor(const std::string &color, bool hsl) const {
+  Color c(color);
+  return getClosestColor(c, hsl);
+}
+/**
+ * @brief Get the closest color to the given color
+ * @param color The color to compare
  * @return The closest color
  */
 Color ColorMap::getClosestColor(const std::string &color) const {
   Color c(color);
   return getClosestColor(c);
+}
+
+/**
+ * @brief Get the closest color to the given color
+ * @param color The color to compare
+ * @return The closest color
+ */
+Color ColorMap::getClosestColor(const Color& color) const {
+  return getClosestColor(color, false);
 }
 
 
