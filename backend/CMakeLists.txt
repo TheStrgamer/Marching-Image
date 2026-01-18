@@ -24,10 +24,14 @@ add_executable(Colormap
     header/Color.hpp
     header/ImageHandler.hpp
     header/Server.hpp
+    header/Mesh.hpp
+    header/MarchingSquare.hpp
     src/ColorMap.cpp
     src/Color.cpp
     src/ImageHandler.cpp
     src/Server.cpp
+    src/Mesh.cpp
+    src/MarchingSquare.cpp
 )
 
 target_link_libraries(Colormap
