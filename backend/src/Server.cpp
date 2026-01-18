@@ -99,7 +99,7 @@ std::string base64_encode(const unsigned char* bytes_to_encode, unsigned int in_
 void Server::start() {
     running = true;
 
-    CROW_ROUTE(colorMapServer, "/api/test")
+    CROW_ROUTE(colorMapServer, "/api/health")
     ([]() {
     
         return crow::response(200, "Success");
@@ -160,7 +160,7 @@ std::vector<std::pair<std::string, std::string>> processImage(const std::vector<
         MarchingSquare ms(m, w, h);
         ms.marchSquares();
 
-        std::string stl = ms.getMesh().exportSTLToString();
+        std::string stl = ms.getMeshString();
         std::string encoded = base64_encode(
             reinterpret_cast<const unsigned char*>(stl.data()),
             stl.size()
@@ -213,7 +213,7 @@ crow::response Server::handleImageProcessingRequest(const std::string& body) {
 }
 
 
-cv::Mat mapColors(const std::vector<std::string> &colors, const cv::Mat &image) {
+cv::Mat mapColors(const std::vector<std::string> &colors, bool hsl, int kernelSize, int maxSize, const cv::Mat &image) {
     ImageHandler imageHandler = ImageHandler();
     ColorMap colorMap = ColorMap(colors);
     std::string outputFolder = "/app/output/";
@@ -224,7 +224,9 @@ cv::Mat mapColors(const std::vector<std::string> &colors, const cv::Mat &image) 
     }
 
     imageHandler.setImage(image);
-    imageHandler.mapImage(colorMap);
+    if (kernelSize > 0) imageHandler.blurImage(kernelSize);
+    if (maxSize > 0) imageHandler.downScaleImage(maxSize);
+    imageHandler.mapImage(colorMap, hsl);
     imageHandler.saveImage(outputFolder + "mapped_image.jpg");
     // for (int i = 4; i < 5; i++) {
     //     imageHandler.blurImage(i * 12 + 1);
@@ -255,14 +257,18 @@ crow::response Server::handleColorMapRequest(const std::string& body) {
             return crow::response(400, "Could not decode image");
         }
         std::vector<std::string> colors = parsed.value("colors", std::vector<std::string>{});
+        std::string method = parsed.value("method", "Euclidian");
+        int kernelSize = parsed.value("blurFactor", 0);
+        int maxSize = parsed.value("maxSize", 1024);
 
-        cv::Mat processed = mapColors(colors, mat);
+        bool hsl = method == "HSL";
+
+        cv::Mat processed = mapColors(colors, hsl, kernelSize, maxSize,  mat);
 
         // Encode processed image to PNG in-memory
         std::vector<uchar> buf;
         cv::imencode(".png", processed, buf);
         
-
         std::string encoded_img = base64_encode(buf.data(), buf.size());
 
         json response_json;
