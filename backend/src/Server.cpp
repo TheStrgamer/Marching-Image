@@ -156,8 +156,8 @@ std::vector<std::pair<std::string, std::string>> processImage(const std::vector<
 
     for (const Color& color : colorMap.getColors()) {
         Matrix m = imageHandler.getImageAsMatrix(color);
-
-        MarchingSquare ms(m, w, h);
+        std::cout << "image is now matrix" <<std::endl;
+        MarchingSquare ms(m, w+2, h+2);
         ms.marchSquares();
 
         std::string stl = ms.getMeshString();
@@ -167,6 +167,7 @@ std::vector<std::pair<std::string, std::string>> processImage(const std::vector<
         );
 
         models.emplace_back(color.getHex(), encoded);
+        std::cout<< "finished color " << color.getHex() << std::endl;
     }
 
     return models;
@@ -187,7 +188,7 @@ crow::response Server::handleImageProcessingRequest(const std::string& body) {
         std::string base64_img = parsed["image"];
         std::vector<uchar> raw = base64_decode(base64_img);
 
-        cv::Mat image = cv::imdecode(raw, cv::IMREAD_COLOR);
+        cv::Mat image = cv::imdecode(raw, cv::IMREAD_UNCHANGED);
         if (image.empty()) {
             return crow::response(400, "Invalid image");
         }
@@ -252,7 +253,7 @@ crow::response Server::handleColorMapRequest(const std::string& body) {
         std::string base64_img = parsed["image"];
         std::vector<uchar> raw_data = base64_decode(base64_img);
 
-        cv::Mat mat = cv::imdecode(raw_data, cv::IMREAD_COLOR);
+        cv::Mat mat = cv::imdecode(raw_data, cv::IMREAD_UNCHANGED);
         if (mat.empty()) {
             return crow::response(400, "Could not decode image");
         }

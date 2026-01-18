@@ -201,7 +201,7 @@ void ImageHandler::removeIslands(int islandSize) {
  * @return the matrix
  */
 Matrix ImageHandler::getImageAsMatrix(const Color &color) {
-    Matrix m(image.rows, std::vector<int>(image.cols, 0));
+    Matrix m(image.rows+2, std::vector<int>(image.cols+2, 0));
 
     cv::parallel_for_(cv::Range(0, image.rows),
         [&](const cv::Range& range) {
@@ -209,7 +209,7 @@ Matrix ImageHandler::getImageAsMatrix(const Color &color) {
                 const cv::Vec3b* rowPtr = image.ptr<cv::Vec3b>(i);
                 for (int j = 0; j < image.cols; ++j) {
                     Color c = pixelToColor(rowPtr[j]);
-                    m[i][j] = (c == color) ? 1 : 0;
+                    m[i+1][j+1] = (c == color) ? 1 : 0;
                 }
             }
         }
@@ -243,6 +243,14 @@ void ImageHandler::downScaleImage(int maxSize) {
     cv::resize(
         image,
         image,
+        cv::Size(newWidth, newHeight),
+        0,
+        0,
+        cv::INTER_AREA
+    );    
+    cv::resize(
+        outputImage,
+        outputImage,
         cv::Size(newWidth, newHeight),
         0,
         0,
