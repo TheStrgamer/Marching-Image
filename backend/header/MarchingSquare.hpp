@@ -2,6 +2,8 @@
 #include "Mesh.hpp"
 #include <array>
 #include <vector>
+#include <cmath>
+
 using namespace std;
 
 using Vert2 = array<int, 2>;

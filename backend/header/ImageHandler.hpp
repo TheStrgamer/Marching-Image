@@ -6,7 +6,7 @@
 
 using namespace cv;
 
-using Matrix = vector<vector<int>>;
+using Matrix = std::vector<std::vector<int>>;
 
 /**
  * @brief Convert a color to a pixel
@@ -33,11 +33,13 @@ class ImageHandler {
     void setImage(const Mat &img);
     void saveImage(const std::string &path);
     void mapImage(const ColorMap &colorMap);
+    void mapImage(const ColorMap &colorMap, bool hsl);
     void mapImage(ColorMap &colorMap, const std::string &path);
     void blurImage(int kernelSize);
     void removeIslands(int islandSize);
+    void downScaleImage(int maxSize);
     Mat getImage() const { return outputImage; }
-    Matrix getImageAsMatrix(Color &color)
+    Matrix getImageAsMatrix(const Color &color);
 
 
   private:

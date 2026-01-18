@@ -58,8 +58,9 @@ void ImageHandler::saveImage(const std::string &path) {
 /**
  * @brief Map the image by setting the color of each pixel to the closest color in the color map
  * @param colorMap The color map to use
+ * @param hsl if the method should use hsl distance
  */
-void ImageHandler::mapImage(const ColorMap &colorMap) {
+void ImageHandler::mapImage(const ColorMap &colorMap, bool hsl) {
     std::cout << "Mapping image with " << colorMap.getColors().size() << " colors.\n";
     for (const auto &color : colorMap.getColors()) {
         std::cout << "Color: " << color.getHex() << "\n";
@@ -73,10 +74,18 @@ void ImageHandler::mapImage(const ColorMap &colorMap) {
             auto *rowPtr = outputImage.ptr<cv::Vec3b>(i);
             for (int j = 0; j < image.cols; j++) {
                 Color c = pixelToColor(rowPtr[j]);
-                colorToPixel(colorMap.getClosestColor(c), rowPtr[j]);
+                colorToPixel(colorMap.getClosestColor(c, hsl), rowPtr[j]);
             }
         }
     });
+}
+
+/**
+ * @brief Map the image by setting the color of each pixel to the closest color in the color map
+ * @param colorMap The color map to use
+ */
+void ImageHandler::mapImage(const ColorMap &colorMap) {
+    mapImage(colorMap, false);
 }
 /**
  * @brief Map the image by setting the color of each pixel to the closest color in the color map
@@ -191,7 +200,7 @@ void ImageHandler::removeIslands(int islandSize) {
  * @param color the color to match with
  * @return the matrix
  */
-Matrix ImageHandler::getImageAsMatrix(Color &color) {
+Matrix ImageHandler::getImageAsMatrix(const Color &color) {
     Matrix m(image.rows, std::vector<int>(image.cols, 0));
 
     cv::parallel_for_(cv::Range(0, image.rows),
@@ -207,5 +216,37 @@ Matrix ImageHandler::getImageAsMatrix(Color &color) {
     );
 
     return m;
+}
+
+/**
+ * @brief downscales image to maxSize
+ * @param maxSize the maximum width/height the image can have
+ */
+void ImageHandler::downScaleImage(int maxSize) {
+
+    if (image.empty() || maxSize <= 0) {
+        return;
+    }
+    int width  = image.cols;
+    int height = image.rows;
+
+    int largest = std::max(width, height);
+
+    if (largest <= maxSize) {
+        return;
+    }
+
+    double scale = static_cast<double>(maxSize) / largest;
+    int newWidth  = static_cast<int>(width  * scale);
+    int newHeight = static_cast<int>(height * scale);
+
+    cv::resize(
+        image,
+        image,
+        cv::Size(newWidth, newHeight),
+        0,
+        0,
+        cv::INTER_AREA
+    );
 }
 

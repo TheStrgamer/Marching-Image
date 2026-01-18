@@ -41,9 +41,9 @@ void MarchingSquare::addVertsFromSquare(int startX, int startY, float size){
         const int x = vx + d[0];
         const int y = vy + d[1];
 
-        if (vertRef[x][y][0] == -1) {
-            vertRef[x][y][0] = mesh.addVertex(x - width + 1, y - height + 1, -size/2);
-            vertRef[x][y][1] = mesh.addVertex(x - width + 1, y - height + 1, size/2);
+        if (vertRef[y][x][0] == -1) {
+            vertRef[y][x][0] = mesh.addVertex(x - width + 1, y - height + 1, -size/2);
+            vertRef[y][x][1] = mesh.addVertex(x - width + 1, y - height + 1, size/2);
         }
     }
 }
@@ -162,7 +162,7 @@ void MarchingSquare::marchSquare(int startX, int startY){
  */
 void MarchingSquare::marchSquares() {
     for (int i = 0; i < m.size()-1; i++) {
-        for (int j = 0; i < m[0].size()-1; j++) {
+        for (int j = 0; j < m[0].size()-1; j++) {
             marchSquare(j,i);
         }
     }
