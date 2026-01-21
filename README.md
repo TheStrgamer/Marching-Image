@@ -34,12 +34,54 @@ git clone https://github.com/TheStrgamer/Marching-Image.git
 cd Marching-Image
 ```
 
+## How to run with docker
+For running both frontend and backend it is reccomended to use docker
+Make sure docker is running and use this command
+```Bash
+docker compose up --build
+```
+
 ## How to run frontend
 For now only the frontend version is fully implemented, to run it, use the following commands
 ```Bash
 cd frontend/colormap
 npm install
 npm run dev
+```
+## How to run backend (Linux)
+To run the backend on linux, you need the following requirements
+
+
+- CMake
+- g++
+- OpenCV (with PNG support)
+- Boost
+- Asio
+- nlohmann-json
+
+can be installed with these commands if you use the apt package manager
+```Bash
+sudo apt update
+sudo apt install -y \
+  cmake \
+  g++ \
+  make \
+  libopencv-dev \
+  libboost-all-dev \
+  libasio-dev \
+  nlohmann-json3-dev \
+  git
+```
+To run the backend, use 
+```Bash
+cd backend
+git clone https://github.com/CrowCpp/crow.git external/crow
+
+mkdir -p build
+cd build
+cmake ..
+make
+./Colormap
 ```
 
 ## How it works
