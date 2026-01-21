@@ -13,13 +13,13 @@ using Matrix = std::vector<std::vector<int>>;
  * @param color The color to convert
  * @param pixel The pixel to set
  */
-void colorToPixel(const Color &color, Vec3b &pixel);
+void colorToPixel(const Color &color, Vec4b &pixel);
 /**
  * @brief Convert a pixel to a color
  * @param pixel The pixel to convert
  * @return The color
  */
-Color pixelToColor(const Vec3b &pixel);
+Color pixelToColor(const Vec4b &pixel);
 
 /**
  * @brief  A class to handle image reading writing and processing

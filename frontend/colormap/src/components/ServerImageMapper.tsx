@@ -45,35 +45,43 @@ export default function ServerImageMapper({
     reader.readAsDataURL(file);
   };
 
-  const mapColorsServer = async () => {
-    if (!image || !serverOnline) return;
-    setProcessing(true);
+const mapColorsServer = async () => {
+  if (!image || !serverOnline) return;
+  setProcessing(true);
 
-    try {
-      const response = await fetch("http://localhost:8080/api/color_map", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image: image.split(",")[1],
-          colors,
-          blur, 
-          blurFactor,
-          maxSize,
-          method
-        }),
-      });
+  try {
+    const response = await fetch("http://localhost:8080/api/color_map", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        image: image.split(",")[1],
+        colors,
+        blur, 
+        blurFactor,
+        maxSize,
+        method
+      }),
+    });
 
-      const data = await response.json();
-      if (data.image) {
-        const out = `data:image/jpeg;base64,${data.image}`;
-        setResult(out);
-      }
-    } catch (err) {
-      console.error("Server mapping failed:", err);
-    } finally {
-      setProcessing(false);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      alert(`Server error: ${errorText}`);
+      return;
     }
-  };
+
+    const data = await response.json();
+    if (data.image) {
+      const out = `data:image/png;base64,${data.image}`;
+      setResult(out);
+    }
+  } catch (err) {
+    console.error("Server mapping failed:", err);
+    alert(`Mapping failed: ${err}`);
+  } finally {
+    setProcessing(false);
+  }
+};
 
 const exportSelected = async () => {
   if (!result) return;

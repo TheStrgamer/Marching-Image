@@ -33,12 +33,15 @@ static inline std::vector<uchar> base64_decode(const std::string &in) {
 
     std::vector<uchar> out;
     int val = 0, valb = -8;
-    for (uchar c : in) {
-        if (T[c] == -1) break;
+
+    for (unsigned char c : in) {
+        if (c == '=') break;
+        if (T[c] == -1) continue;
+
         val = (val << 6) + T[c];
         valb += 6;
         if (valb >= 0) {
-            out.push_back(char((val >> valb) & 0xFF));
+            out.push_back(static_cast<uchar>((val >> valb) & 0xFF));
             valb -= 8;
         }
     }
@@ -228,7 +231,7 @@ cv::Mat mapColors(const std::vector<std::string> &colors, bool hsl, int kernelSi
     if (kernelSize > 0) imageHandler.blurImage(kernelSize);
     if (maxSize > 0) imageHandler.downScaleImage(maxSize);
     imageHandler.mapImage(colorMap, hsl);
-    imageHandler.saveImage(outputFolder + "mapped_image.jpg");
+    //imageHandler.saveImage(outputFolder + "mapped_image.jpg");
     // for (int i = 4; i < 5; i++) {
     //     imageHandler.blurImage(i * 12 + 1);
     //     imageHandler.mapImage(colorMap);
@@ -269,7 +272,7 @@ crow::response Server::handleColorMapRequest(const std::string& body) {
         // Encode processed image to PNG in-memory
         std::vector<uchar> buf;
         cv::imencode(".png", processed, buf);
-        
+
         std::string encoded_img = base64_encode(buf.data(), buf.size());
 
         json response_json;
@@ -278,6 +281,7 @@ crow::response Server::handleColorMapRequest(const std::string& body) {
         return crow::response(200, response_json.dump());
 
     } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
         return crow::response(400, std::string("Bad request: ") + e.what());
     }
 }
