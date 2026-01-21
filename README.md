@@ -15,7 +15,7 @@ For most images the model will be pretty complex, so it is reccomended to prepro
 - Modified marching squares algorithm
 - Export single or multiple colors
 - Frontend GUI (TypeScript)
-- Planned C++ backend (Docker-ready)
+- C++ backend (Docker-ready)
 
 ---
 
@@ -42,7 +42,7 @@ docker compose up --build
 ```
 
 ## How to run frontend
-For now only the frontend version is fully implemented, to run it, use the following commands
+This application can be run with frontend only, to run it, use the following commands
 ```Bash
 cd frontend/colormap
 npm install
