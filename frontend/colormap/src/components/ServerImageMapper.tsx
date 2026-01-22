@@ -18,7 +18,7 @@ export default function ServerImageMapper({
   const [maxSize, setMaxSize] = useState<number | 512>(512);
   const [blur, setBlur] = useState<boolean>(false);
   const [blurFactor, setBlurFactor] = useState<number>(2);
-  const [method, setMethod] = useState<string>("rgb2lab")
+  const [method, setMethod] = useState<string>("HSL")
 
   /* is server alive? */
   useEffect(() => {

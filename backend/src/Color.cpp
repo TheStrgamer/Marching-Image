@@ -264,21 +264,28 @@ Color::Color() {
    * @param color the color to compare to this color
    * @return the distance
    */
-  int Color::getHslDistance(const Color &color) const{
+/**
+ * @brief Function that calculates color closeness in hsl to be more accurate to how it looks
+ * @param color the color to compare to this color
+ * @return the distance (scaled to be comparable with RGB distance)
+ */
+int Color::getHslDistance(const Color &color) const {
     const HSL& a = rgbToHsl();
     const HSL& b = color.rgbToHsl();
+    
     double dh = std::abs(a.h - b.h);
     dh = std::min(dh, 360.0 - dh) / 180.0;
 
     double ds = std::abs(a.s - b.s);
     double dl = std::abs(a.l - b.l);
 
-    return std::sqrt(
+    double distance = std::sqrt(
         4.0 * dh * dh +
         1.5 * ds * ds +
         1.0 * dl * dl
     );
-  }
+    return static_cast<int>(distance * 100);
+}
 
     /**
    * @brief Function that calculates color closeness in hsl to be more accurate to how it looks
